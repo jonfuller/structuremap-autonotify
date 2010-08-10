@@ -1,0 +1,13 @@
+db
+SyncServer/Content/SyncClient/
+*.trx
+maburke_NIFTIER*
+bin
+obj
+*.suo
+*.user
+_ReSharper.*
+TestResults
+.*.swp
+*.vsp
+lib
