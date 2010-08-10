@@ -12,9 +12,9 @@ end
 
 desc 'Install .NET assemblies that this project relies on'
 task :deps do
-  sh 'nu', 'install', 'structuremap'
-  sh 'nu', 'install', 'castle.dynamicproxy2'
-  sh 'nu', 'install', 'nunit'
+  sh 'bundle', 'cache'
+  gem_install_cmd = %W(gem install -i lib --no-rdoc --no-ri) + FileList['vendor/cache/*.gem']
+  sh(*gem_install_cmd)
 end
 
 build_output = 'src/StructureMap.AutoNotify/bin/Release/StructureMap.AutoNotify.dll'

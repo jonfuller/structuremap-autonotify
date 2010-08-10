@@ -1,0 +1,20 @@
+GEM
+  remote: http://rubygems.org/
+  specs:
+    castle.core (1.2.0.0)
+      log4net (= 1.2.10.0)
+      nlog (= 1.0.0.505)
+    castle.dynamicproxy2 (2.2.0.0)
+      castle.core (= 1.2.0.0)
+    log4net (1.2.10.0)
+    nlog (1.0.0.505)
+    nunit (2.5.7.10213.20100801)
+    structuremap (2.6.2.0.20100731)
+
+PLATFORMS
+  x86-mingw32
+
+DEPENDENCIES
+  castle.dynamicproxy2
+  nunit
+  structuremap
