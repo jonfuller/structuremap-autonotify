@@ -10,6 +10,13 @@ msbuild do |msb|
   msb.solution = 'src/StructureMap.AutoNotify.sln'
 end
 
+desc 'Install .NET assemblies that this project relies on'
+task :deps do
+  sh 'nu', 'install', 'structuremap'
+  sh 'nu', 'install', 'castle.dynamicproxy2'
+  sh 'nu', 'install', 'nunit'
+end
+
 build_output = 'src/StructureMap.AutoNotify/bin/Release/StructureMap.AutoNotify.dll'
 gem_dll = 'lib/StructureMap.AutoNotify.dll'
 
