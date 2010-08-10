@@ -7,10 +7,10 @@ task :default => [:msbuild]
 desc 'Compile'
 msbuild do |msb|
   msb.properties = {'Configuration' => 'Release'}
-  msb.solution = 'src/StructureMap.AutoNotify/StructureMap.AutoNotify.sln'
+  msb.solution = 'src/StructureMap.AutoNotify.sln'
 end
 
-build_output = 'src/StructureMap.AutoNotify/StructureMap.AutoNotify/bin/Release/StructureMap.AutoNotify.dll'
+build_output = 'src/StructureMap.AutoNotify/bin/Release/StructureMap.AutoNotify.dll'
 gem_dll = 'lib/StructureMap.AutoNotify.dll'
 
 task :set_up_lib => gem_dll
@@ -31,6 +31,8 @@ namespace :gem do
     gemspec.email = ["maburke@sep.com", "jcfuller@sep.com"]
     gemspec.authors = ["Jon Fuller", "Matt Burke"]
     gemspec.files = [gem_dll, 'VERSION']
+    gemspec.add_dependency 'structuremap'
+    gemspec.add_dependency 'castle.dynamicproxy2'
   end
 end
 

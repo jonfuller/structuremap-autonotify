@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{0908B437-1A2D-445A-8582-350F87310138}</ProjectGuid>
+    <ProjectGuid>{4B4C3993-787D-425A-B38F-2D1FFE71CB3E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>StructureMap.AutoNotify</RootNamespace>
-    <AssemblyName>StructureMap.AutoNotify</AssemblyName>
+    <RootNamespace>Tests</RootNamespace>
+    <AssemblyName>Tests</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -32,15 +32,15 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Castle.Core">
-      <HintPath>..\..\..\lib\castle.core\net-35\Castle.Core.dll</HintPath>
-    </Reference>
     <Reference Include="Castle.DynamicProxy2">
-      <HintPath>..\..\..\lib\castle.dynamicproxy2\net-35\Castle.DynamicProxy2.dll</HintPath>
+      <HintPath>..\..\lib\castle.dynamicproxy2\net-35\Castle.DynamicProxy2.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework">
+      <HintPath>..\..\lib\nunit\net-2.0\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="StructureMap, Version=2.6.2.0, Culture=neutral, PublicKeyToken=e60ad81abae3c223, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\lib\structuremap\StructureMap.dll</HintPath>
+      <HintPath>..\..\lib\structuremap\StructureMap.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -51,13 +51,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AutoNotifyAttribute.cs" />
-    <Compile Include="AutoNotifyScanner.cs" />
-    <Compile Include="Extensions.cs" />
-    <Compile Include="LooseConstructorInstance.cs" />
-    <Compile Include="Notifiable.cs" />
+    <Compile Include="AutoNotifyScannerTests.cs" />
+    <Compile Include="CanMakeNotifiableForConcreteClass.cs" />
+    <Compile Include="CanMakeNotifiableForInterface.cs" />
+    <Compile Include="ContainerUsage.cs" />
+    <Compile Include="EventTracker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="PropertyChangedDecorator.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\StructureMap.AutoNotify\StructureMap.AutoNotify.csproj">
+      <Project>{0908B437-1A2D-445A-8582-350F87310138}</Project>
+      <Name>StructureMap.AutoNotify</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
