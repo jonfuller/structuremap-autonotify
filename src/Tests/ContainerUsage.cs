@@ -16,7 +16,7 @@ namespace Tests
             {
                 config
                     .For<IFoo>()
-                    .EnrichAllWith((context, obj) => Notifiable.MakeForInterfaceGeneric(obj, new ProxyGenerator()))
+                    .EnrichAllWith((context, obj) => Notifiable.MakeForInterfaceGeneric(obj, FireOptions.Always, new ProxyGenerator()))
                     .Use<Foo>();
             });
 
@@ -41,7 +41,7 @@ namespace Tests
             {
                 config
                     .For<Bar>()
-                    .Use(context => Notifiable.MakeForClassGeneric<Bar>(new ProxyGenerator()));
+                    .Use(context => Notifiable.MakeForClassGeneric<Bar>(FireOptions.Always, new ProxyGenerator()));
             });
 
             var bar = container.GetInstance<Bar>();
@@ -75,6 +75,17 @@ namespace Tests
 
             Assert.That(gem, Is.InstanceOf<INotifyPropertyChanged>());
             Assert.That(rock, Is.InstanceOf<INotifyPropertyChanged>());
+
+
+            // Make sure "FireOptions.OnlyOnChange" got hooked up correctly for Rock
+            var rockTracker = new EventTracker<PropertyChangedEventHandler>();
+
+            rock.Value = "test";
+            (rock as INotifyPropertyChanged).PropertyChanged += rockTracker;
+            rock.Value = "test";
+
+            Assert.That(rockTracker.WasNotCalled);
+
         }
     }
 
@@ -106,7 +117,7 @@ namespace Tests
         public string Value { get; set; }
     }
 
-    [AutoNotify]
+    [AutoNotify(Fire = FireOptions.OnlyOnChange)]
     public class Rock
     {
         // note for autonotify to work, the property must be virtual

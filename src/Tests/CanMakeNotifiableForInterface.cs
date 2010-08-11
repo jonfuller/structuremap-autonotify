@@ -12,7 +12,7 @@ namespace Tests
         [TestCase]
         public void ShouldReturnAnINPCForInterfacedObject()
         {
-            var greeter = Notifiable.MakeForInterfaceGeneric<IGreeter>(new LolCat(), new ProxyGenerator());
+            var greeter = Notifiable.MakeForInterfaceGeneric<IGreeter>(new LolCat(), FireOptions.Always, new ProxyGenerator());
 
             Assert.That(greeter, Is.InstanceOf<INotifyPropertyChanged>());
         }
@@ -20,7 +20,7 @@ namespace Tests
         [TestCase]
         public void ShouldFireChangedWhenPropertyChangedOnMadeObject()
         {
-            var greeter = Notifiable.MakeForInterfaceGeneric<IGreeter>(new LolCat(), new ProxyGenerator());
+            var greeter = Notifiable.MakeForInterfaceGeneric<IGreeter>(new LolCat(), FireOptions.Always, new ProxyGenerator());
 
             var tracker = new EventTracker<PropertyChangedEventHandler>();
 
@@ -36,7 +36,7 @@ namespace Tests
         {
             Assert.Throws<InvalidOperationException>(() =>
             {
-                Notifiable.MakeForInterfaceGeneric<LolCat>(new LolCat(), new ProxyGenerator());
+                Notifiable.MakeForInterfaceGeneric<LolCat>(new LolCat(), FireOptions.Always, new ProxyGenerator());
             });
         }
 

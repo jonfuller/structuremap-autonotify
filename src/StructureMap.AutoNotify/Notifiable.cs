@@ -10,14 +10,14 @@ namespace StructureMap.AutoNotify
     {
         static readonly ILog logger = LogManager.GetLogger(typeof(AutoNotifyScanner));
 
-        public static object MakeForInterface(Type type, object obj, ProxyGenerator generator)
+        public static object MakeForInterface(Type type, object obj, FireOptions fireOption, ProxyGenerator generator)
         {
             var maker = typeof(Notifiable).GetMethod("MakeForInterfaceGeneric");
             var typed = maker.MakeGenericMethod(type);
-            return typed.Invoke(null, new[] { obj, generator });
+            return typed.Invoke(null, new[] { obj, fireOption, generator });
         }
 
-        public static T MakeForInterfaceGeneric<T>(T obj, ProxyGenerator generator) where T : class
+        public static T MakeForInterfaceGeneric<T>(T obj, FireOptions fireOption, ProxyGenerator generator) where T : class
         {
             if(!typeof(T).IsInterface)
                 throw new InvalidOperationException(string.Format("{0} is not an interface", typeof(T).Name));
@@ -26,22 +26,22 @@ namespace StructureMap.AutoNotify
                 typeof(T),
                 new[] { typeof(INotifyPropertyChanged) },
                 obj,
-                new PropertyChangedDecorator());
+                new PropertyChangedDecorator(fireOption));
         }
 
-        public static object MakeForClass(Type type, object[] ctorArgs, ProxyGenerator generator)
+        public static object MakeForClass(Type type, FireOptions fireOption, object[] ctorArgs, ProxyGenerator generator)
         {
             var maker = typeof(Notifiable).GetMethod("MakeForClassGeneric");
             var typed = maker.MakeGenericMethod(type);
-            return typed.Invoke(null, new object[] { generator, ctorArgs });
+            return typed.Invoke(null, new object[] { fireOption, generator, ctorArgs });
         }
 
-        public static T MakeForClassGeneric<T>(ProxyGenerator generator, params object[] ctorArgs) where T : class
+        public static T MakeForClassGeneric<T>(FireOptions fireOption, ProxyGenerator generator, params object[] ctorArgs) where T : class
         {
             var nonVirtualProps = typeof(T)
                 .GetProperties()
                 .Select(prop => new { prop.Name, Setter = prop.GetSetMethod() })
-                .Where(prop => !prop.Setter.IsVirtual)
+                .Where(prop => prop.Setter != null && !prop.Setter.IsVirtual)
                 .Select(prop => prop.Name)
                 .Join(", ");
 
@@ -57,7 +57,7 @@ namespace StructureMap.AutoNotify
                 new[] { typeof(INotifyPropertyChanged) },
                 ProxyGenerationOptions.Default,
                 ctorArgs,
-                new PropertyChangedDecorator());
+                new PropertyChangedDecorator(fireOption));
         }
     }
 }

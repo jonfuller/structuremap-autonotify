@@ -17,6 +17,11 @@ namespace StructureMap.AutoNotify
             return type.GetCustomAttributes(typeof(TAttr), true).Length > 0;
         }
 
+        public static TAttr GetAttribute<TAttr>(this Type type)
+        {
+            return (TAttr)type.GetCustomAttributes(typeof(TAttr), true).FirstOrDefault();
+        }
+
         public static T WithMax<T>(this IEnumerable<T> target, Func<T, int> selector)
         {
             int max = -1;

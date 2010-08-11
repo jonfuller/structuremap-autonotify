@@ -17,23 +17,25 @@ namespace StructureMap.AutoNotify
 
             logger.InfoFormat("Registering autonotify for {0}", type.Name);
 
+            var fireOption = type.GetAttribute<AutoNotifyAttribute>().Fire;
+
             if(type.IsInterface)
-                ConfigureInterface(type, graph);
+                ConfigureInterface(type, graph, fireOption);
             else if(!type.IsAbstract)
-                ConfigureClass(type, graph);
+                ConfigureClass(type, graph, fireOption);
         }
 
-        private void ConfigureInterface(Type type, PluginGraph graph)
+        private void ConfigureInterface(Type type, PluginGraph graph, FireOptions fireOption)
         {
             graph.Configure(registry =>
             {
                 registry
                     .For(type)
-                    .EnrichWith((context, obj) => Notifiable.MakeForInterface(type, obj, new ProxyGenerator()));
+                    .EnrichWith((context, obj) => Notifiable.MakeForInterface(type, obj, fireOption, new ProxyGenerator()));
             });
         }
 
-        private void ConfigureClass(Type type, PluginGraph graph)
+        private void ConfigureClass(Type type, PluginGraph graph, FireOptions fireOption)
         {
             graph.Configure(registry =>
             {
@@ -44,7 +46,7 @@ namespace StructureMap.AutoNotify
                         .GetParameters()
                         .Select(p => context.GetInstance(p.ParameterType));
 
-                    return Notifiable.MakeForClass(type, ctorArgs.ToArray(), new ProxyGenerator());
+                    return Notifiable.MakeForClass(type, fireOption, ctorArgs.ToArray(), new ProxyGenerator());
                 });
 
                 registry.For(type).Use(inst);

@@ -6,7 +6,14 @@ namespace StructureMap.AutoNotify
 {
     public class PropertyChangedDecorator : IInterceptor
     {
+        readonly FireOptions _fireOption;
         static readonly ILog logger = LogManager.GetLogger(typeof(PropertyChangedDecorator));
+
+        public PropertyChangedDecorator(FireOptions fireOption)
+        {
+            _fireOption = fireOption;
+        }
+
         const string SetPrefix = "set_";
 
         public void Intercept(IInvocation invocation)
@@ -26,16 +33,58 @@ namespace StructureMap.AutoNotify
                 return;
             }
 
+            object oldValue = null;
+
+            if(IsPropertySetter(invocation))
+            {
+                oldValue = invocation.InvocationTarget
+                    .GetType()
+                    .GetProperty(GetPropertyName(invocation))
+                    .GetValue(invocation.InvocationTarget, new object[0]);
+            }
+
             invocation.Proceed();
             if(IsPropertySetter(invocation))
             {
                 var propertyName = GetPropertyName(invocation);
 
-                logger.DebugFormat("Firing PropertyChanged for {0}.{1}",
-                    invocation.InvocationTarget.GetType().Name,
-                    propertyName);
+                if(FireOptions.Always == _fireOption)
+                {
+                    logger.DebugFormat("Firing PropertyChanged for {0}.{1}",
+                        invocation.InvocationTarget.GetType().Name,
+                        propertyName);
 
-                PropertyChanged(invocation.InvocationTarget, new PropertyChangedEventArgs(propertyName));
+                    PropertyChanged(invocation.InvocationTarget, new PropertyChangedEventArgs(propertyName));
+
+                    return;
+                }
+
+                if(FireOptions.OnlyOnChange == _fireOption)
+                {
+                    var newValue = invocation.GetArgumentValue(0);
+
+                    logger.DebugFormat("Old value: {0}", oldValue);
+                    logger.DebugFormat("New value: {0}", newValue);
+
+                    if((oldValue == null && newValue == null)
+                        || (oldValue != null && oldValue.Equals(newValue))
+                        || (newValue != null && newValue.Equals(oldValue)))
+                    {
+                        logger.DebugFormat("Values are 'equal', not firing PropertyChanged");
+                    }
+                    else
+                    {
+                        logger.DebugFormat("Values are not equal.");
+                        logger.DebugFormat("Firing PropertyChanged for {0}.{1}",
+                            invocation.InvocationTarget.GetType().Name,
+                            propertyName);
+
+                        PropertyChanged(invocation.InvocationTarget, new PropertyChangedEventArgs(propertyName));
+                    }
+
+                    return;
+                }
+
             }
         }
 
