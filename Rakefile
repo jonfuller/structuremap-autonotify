@@ -1,6 +1,10 @@
+require 'rubygems'
+require 'bundler'
+Bundler.setup :default, :rake
 require 'albacore'
 require 'jeweler'
 require 'fileutils'
+require 'noodle'
 
 task :default => [:msbuild]
 
@@ -15,6 +19,10 @@ task :deps do
   sh 'bundle', 'cache'
   gem_install_cmd = %W(gem install -i lib --no-rdoc --no-ri) + FileList['vendor/cache/*.gem']
   sh(*gem_install_cmd)
+end
+
+Noodle::Rake::NoodleTask.new do |noodle|
+  noodle.groups << :dotnet
 end
 
 build_output = 'src/StructureMap.AutoNotify/bin/Release/StructureMap.AutoNotify.dll'
