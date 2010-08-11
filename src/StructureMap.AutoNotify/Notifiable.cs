@@ -44,10 +44,13 @@ namespace StructureMap.AutoNotify
                 .Where(prop => !prop.Setter.IsVirtual)
                 .Select(prop => prop.Name)
                 .Join(", ");
-            
-            logger.DebugFormat("Autonotify will not work for the following members on {0}.  Make the properties virtual to enable autonotify. {1}",
-                typeof(T).Name,
-                nonVirtualProps);
+
+            if(nonVirtualProps.IsNotEmpty())
+            {
+                logger.DebugFormat("Autonotify will not work for the following members on {0}.  Make the properties virtual to enable autonotify. {1}",
+                    typeof(T).Name,
+                    nonVirtualProps);
+            }
 
             return (T)generator.CreateClassProxy(
                 typeof(T),

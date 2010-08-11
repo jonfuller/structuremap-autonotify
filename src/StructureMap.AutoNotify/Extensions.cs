@@ -47,5 +47,15 @@ namespace StructureMap.AutoNotify
         {
             return string.Join(separator, target.ToArray());
         }
+
+        public static bool IsEmpty(this string target)
+        {
+            return target.Length == 0;
+        }
+
+        public static bool IsNotEmpty(this string target)
+        {
+            return target.Length > 0;
+        }
     }
 }
