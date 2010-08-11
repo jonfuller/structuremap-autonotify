@@ -50,12 +50,7 @@ namespace StructureMap.AutoNotify
 
                 if(FireOptions.Always == _fireOption)
                 {
-                    logger.DebugFormat("Firing PropertyChanged for {0}.{1}",
-                        invocation.InvocationTarget.GetType().Name,
-                        propertyName);
-
-                    PropertyChanged(invocation.InvocationTarget, new PropertyChangedEventArgs(propertyName));
-
+                    Notify(invocation, propertyName);
                     return;
                 }
 
@@ -66,26 +61,36 @@ namespace StructureMap.AutoNotify
                     logger.DebugFormat("Old value: {0}", oldValue);
                     logger.DebugFormat("New value: {0}", newValue);
 
-                    if((oldValue == null && newValue == null)
-                        || (oldValue != null && oldValue.Equals(newValue))
-                        || (newValue != null && newValue.Equals(oldValue)))
+                    if(AreEqual(oldValue, newValue))
                     {
                         logger.DebugFormat("Values are 'equal', not firing PropertyChanged");
                     }
                     else
                     {
                         logger.DebugFormat("Values are not equal.");
-                        logger.DebugFormat("Firing PropertyChanged for {0}.{1}",
-                            invocation.InvocationTarget.GetType().Name,
-                            propertyName);
-
-                        PropertyChanged(invocation.InvocationTarget, new PropertyChangedEventArgs(propertyName));
+                        Notify(invocation, propertyName);
                     }
 
                     return;
                 }
 
             }
+        }
+
+        private bool AreEqual(object oldValue, object newValue)
+        {
+            return (oldValue == null && newValue == null)
+                   || (oldValue != null && oldValue.Equals(newValue))
+                   || (newValue != null && newValue.Equals(oldValue));
+        }
+
+        private void Notify(IInvocation invocation, string propertyName)
+        {
+            logger.DebugFormat("Firing PropertyChanged for {0}.{1}",
+                               invocation.InvocationTarget.GetType().Name,
+                               propertyName);
+
+            PropertyChanged(invocation.InvocationTarget, new PropertyChangedEventArgs(propertyName));
         }
 
         private bool IsPropertyChangedAdd(IInvocation invocation)
