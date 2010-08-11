@@ -38,6 +38,9 @@
     <Reference Include="Castle.DynamicProxy2">
       <HintPath>..\..\lib\gems\castle.dynamicproxy2-2.2.0.0\lib\net-35\Castle.DynamicProxy2.dll</HintPath>
     </Reference>
+    <Reference Include="log4net">
+      <HintPath>..\..\lib\gems\log4net-1.2.10.0\lib\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="StructureMap, Version=2.6.2.0, Culture=neutral, PublicKeyToken=e60ad81abae3c223, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\gems\structuremap-2.6.2.0.20100731\lib\StructureMap.dll</HintPath>
@@ -46,7 +49,6 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>

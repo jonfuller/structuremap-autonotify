@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace StructureMap.AutoNotify
@@ -40,6 +41,11 @@ namespace StructureMap.AutoNotify
             var closedMethod = openMethod.MakeGenericMethod(instanceType);
 
             return closedMethod.Invoke(session, new object[0]);
+        }
+
+        public static string Join(this IEnumerable<string> target, string separator)
+        {
+            return string.Join(separator, target.ToArray());
         }
     }
 }

@@ -1,16 +1,21 @@
 ﻿using System;
 using System.Linq;
 using Castle.DynamicProxy;
+using log4net;
 using StructureMap.Graph;
 
 namespace StructureMap.AutoNotify
 {
     public class AutoNotifyScanner : ITypeScanner
     {
+        static readonly ILog logger = LogManager.GetLogger(typeof(AutoNotifyScanner));
+
         public void Process(Type type, PluginGraph graph)
         {
             if(type.IsEnum || !type.HasAttribute<AutoNotifyAttribute>())
                 return;
+
+            logger.InfoFormat("Registering autonotify for {0}", type.Name);
 
             if(type.IsInterface)
                 ConfigureInterface(type, graph);

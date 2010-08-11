@@ -1,11 +1,15 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Linq;
 using Castle.DynamicProxy;
+using log4net;
 
 namespace StructureMap.AutoNotify
 {
     public class Notifiable
     {
+        static readonly ILog logger = LogManager.GetLogger(typeof(AutoNotifyScanner));
+
         public static object MakeForInterface(Type type, object obj, ProxyGenerator generator)
         {
             var maker = typeof(Notifiable).GetMethod("MakeForInterfaceGeneric");
@@ -34,6 +38,17 @@ namespace StructureMap.AutoNotify
 
         public static T MakeForClassGeneric<T>(ProxyGenerator generator, params object[] ctorArgs) where T : class
         {
+            var nonVirtualProps = typeof(T)
+                .GetProperties()
+                .Select(prop => new { prop.Name, Setter = prop.GetSetMethod() })
+                .Where(prop => !prop.Setter.IsVirtual)
+                .Select(prop => prop.Name)
+                .Join(", ");
+            
+            logger.DebugFormat("Autonotify will not work for the following members on {0}.  Make the properties virtual to enable autonotify. {1}",
+                typeof(T).Name,
+                nonVirtualProps);
+
             return (T)generator.CreateClassProxy(
                 typeof(T),
                 new[] { typeof(INotifyPropertyChanged) },

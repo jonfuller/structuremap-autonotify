@@ -40,6 +40,7 @@ namespace :gem do
     gemspec.files = [gem_dll, 'VERSION']
     gemspec.add_dependency 'structuremap'
     gemspec.add_dependency 'castle.dynamicproxy2'
+    gemspec.add_dependency 'log4net'
   end
 end
 

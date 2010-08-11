@@ -16,5 +16,6 @@ PLATFORMS
 
 DEPENDENCIES
   castle.dynamicproxy2
+  log4net
   nunit
   structuremap
