@@ -16,6 +16,9 @@ namespace StructureMap.AutoNotify
         /// <remarks>Defaults to <see cref="FireOptions.Always"/>.</remarks>
         public FireOptions Fire { get; set; }
 
+        /// <summary>
+        /// A type that inherits from DependencyMap{T} or DependencyMap, used for setting up dependent properties.
+        /// </summary>
         public Type DependencyMap { get; set; }
     }
 
