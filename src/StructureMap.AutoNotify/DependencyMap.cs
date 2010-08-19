@@ -22,52 +22,73 @@ namespace StructureMap.AutoNotify
         public List<PropertyDependency> Map { get; private set; }
     }
 
-    public class PropertyDependency
-    {
-        public Type ObjectType { get; set; }
-        public Type SourcePropertyType { get; set; }
-        public string SourcePropName { get; set; }
-        public Func<object, object> Setter { get; set; }
-
-        public string TargetPropName { get; set; }
-
-        public Type TargetPropertyType { get; set; }
-    }
-
-    public class DependencyMapBuilder<TObj, TSourceProp>
+    public class DependencyMapBuilder<TObj, TProp>
     {
         readonly IList<PropertyDependency> _map;
 
-        readonly string _sourcePropName;
+        readonly string _givenPropName;
 
-        public DependencyMapBuilder(string sourcePropName, IList<PropertyDependency> map)
+        public DependencyMapBuilder(string givenPropName, IList<PropertyDependency> map)
         {
-            _sourcePropName = sourcePropName;
+            _givenPropName = givenPropName;
             _map = map;
         }
 
-        public DependencyMapBuilder<TObj, TSourceProp, TTargetProp> ShouldUpdate<TTargetProp>(Expression<Func<TObj, TTargetProp>> targetPropExpr)
+        /// <summary>
+        /// Property(x => x.FirstName).Updates(x => x.FullName).With(x => x.FirstName + " " + x.LastName)
+        /// </summary>
+        /// <remarks>In this case, the original property is the source property.</remarks>
+        public UpdatesBuilder<TObj, TProp, TTargetProp> Updates<TTargetProp>(Expression<Func<TObj, TTargetProp>> targetPropExpr)
         {
-            return new DependencyMapBuilder<TObj, TSourceProp, TTargetProp>(_sourcePropName, targetPropExpr.Name(), _map);
+            var dependency = new ReadOnlyPropertyDependency()
+            {
+                SourcePropName = _givenPropName,
+                TargetPropName = targetPropExpr.Name(),
+                ObjectType = typeof(TObj),
+                SourcePropertyType = typeof(TProp),
+                TargetPropertyType = typeof(TTargetProp),
+            };
+
+            return new UpdatesBuilder<TObj, TProp, TTargetProp>(_givenPropName, targetPropExpr.Name(), _map, dependency);
+        }
+
+        /// <summary>
+        /// Property(x => x.FullName).DependsOn(x => x.FirstName);
+        /// </summary>
+        /// <remarks>In this case, the original property is the target property.</remarks>
+        public void DependsOn<TSourceProp>(Expression<Func<TObj, TSourceProp>> sourcePropExpr)
+        {
+            _map.Add(new ReadOnlyPropertyDependency()
+            {
+                ObjectType = typeof(TObj),
+                SourcePropertyType = typeof(TSourceProp),
+                SourcePropName = sourcePropExpr.Name(),
+                TargetPropertyType = typeof(TProp),
+                TargetPropName = _givenPropName
+            });
         }
     }
 
-    public class DependencyMapBuilder<TObj, TSourceProp, TTargetProp>
+    public class UpdatesBuilder<TObj, TSourceProp, TTargetProp>
     {
         readonly string _sourcePropName;
         readonly string _targetPropName;
         readonly IList<PropertyDependency> _map;
+        readonly ReadOnlyPropertyDependency _dependency;
 
-        public DependencyMapBuilder(string sourcePropName, string targetPropName, IList<PropertyDependency> map)
+        public UpdatesBuilder(string sourcePropName, string targetPropName, IList<PropertyDependency> map, ReadOnlyPropertyDependency dependency)
         {
             _sourcePropName = sourcePropName;
             _targetPropName = targetPropName;
             _map = map;
+            _dependency = dependency;
         }
 
         public void With(Func<TObj, TTargetProp> setter)
         {
-            _map.Add(new PropertyDependency
+            _map.Remove(_dependency);
+
+            _map.Add(new WritingPropertyDependency
             {
                 SourcePropName = _sourcePropName,
                 TargetPropName = _targetPropName,
@@ -77,5 +98,25 @@ namespace StructureMap.AutoNotify
                 Setter = o => setter((TObj)o),
             });
         }
+    }
+
+    public class ReadOnlyPropertyDependency : PropertyDependency
+    {
+    }
+
+    public class WritingPropertyDependency : PropertyDependency
+    {
+        public Func<object, object> Setter { get; set; }
+    }
+
+    public class PropertyDependency
+    {
+        public Type ObjectType { get; set; }
+        public Type SourcePropertyType { get; set; }
+        public string SourcePropName { get; set; }
+
+        public string TargetPropName { get; set; }
+
+        public Type TargetPropertyType { get; set; }
     }
 }

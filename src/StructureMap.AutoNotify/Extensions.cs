@@ -8,6 +8,12 @@ namespace StructureMap.AutoNotify
 {
     public static class Extensions
     {
+        public static T Tap<T>(this T target, Action<T> tap)
+        {
+            tap(target);
+            return target;
+        }
+
         public static void Each<T>(this IEnumerable<T> target, Action<T> action)
         {
             foreach(var item in target)
@@ -27,6 +33,16 @@ namespace StructureMap.AutoNotify
         public static TAttr GetAttribute<TAttr>(this Type type)
         {
             return (TAttr)type.GetCustomAttributes(typeof(TAttr), true).FirstOrDefault();
+        }
+
+        public static bool HasAttribute<TAttr>(this PropertyInfo property)
+        {
+            return property.GetCustomAttributes(typeof(TAttr), true).Length > 0;
+        }
+
+        public static TAttr GetAttribute<TAttr>(this PropertyInfo property)
+        {
+            return (TAttr)property.GetCustomAttributes(typeof(TAttr), true).FirstOrDefault();
         }
 
         public static T WithMax<T>(this IEnumerable<T> target, Func<T, int> selector)

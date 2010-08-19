@@ -18,12 +18,35 @@ namespace StructureMap.AutoNotify
             logger.InfoFormat("Registering autonotify for {0}", type.Name);
 
             var fireOption = type.GetAttribute<AutoNotifyAttribute>().Fire;
-            var dependencyMap = GetDependencyMap(type.GetAttribute<AutoNotifyAttribute>().DependencyMap);
+
+            var dependencyMap = new DependencyMap()
+                .Tap(m => m.Map.AddRange(GetDependencyMap(type.GetAttribute<AutoNotifyAttribute>().DependencyMap).Map))
+                .Tap(m => m.Map.AddRange(GetDependencyMapFromProps(type).Map));
 
             if(type.IsInterface)
                 ConfigureInterface(type, graph, fireOption, dependencyMap);
             else if(!type.IsAbstract)
                 ConfigureClass(type, graph, fireOption, dependencyMap);
+        }
+
+        static DependencyMap GetDependencyMapFromProps(Type type)
+        {
+            return new DependencyMap().Tap(map =>
+            {
+                type.GetProperties()
+                    .Where(prop => prop.HasAttribute<DependsOnAttribute>())
+                    .Select(prop => new {TargetName = prop.Name, TargetType = prop.PropertyType, prop.GetAttribute<DependsOnAttribute>().DependentProperties})
+                    .SelectMany(p => p.DependentProperties.Select(x => new {SourceName = x, p.TargetName, p.TargetType}))
+                    .Select(p => new ReadOnlyPropertyDependency()
+                    {
+                        ObjectType = type,
+                        SourcePropName = p.SourceName,
+                        SourcePropertyType = null, // TODO: look this up
+                        TargetPropName = p.TargetName,
+                        TargetPropertyType = p.TargetType,
+                    })
+                    .Each(p => map.Map.Add(p));
+            });
         }
 
         static DependencyMap GetDependencyMap(Type dependencyMapType)

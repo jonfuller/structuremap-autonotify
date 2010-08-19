@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Linq;
 using Castle.Core.Interceptor;
 using log4net;
@@ -91,11 +89,14 @@ namespace StructureMap.AutoNotify
             {
                 var target = invocation.InvocationTarget;
 
-                var setter = target.GetType().BaseType.GetProperty(propDependency.TargetPropName).GetSetMethod(true);
-                var newValue = propDependency.Setter(target);
+                if(propDependency is WritingPropertyDependency)
+                {
+                    var writingDep = propDependency as WritingPropertyDependency;
+                    var setter = target.GetType().BaseType.GetProperty(propDependency.TargetPropName).GetSetMethod(true);
+                    var newValue = writingDep.Setter(target);
 
-                setter.Invoke(target, new[] {newValue});
-
+                    setter.Invoke(target, new[] { newValue });
+                }
                 Notify(invocation, propDependency.TargetPropName);
             });
         }
