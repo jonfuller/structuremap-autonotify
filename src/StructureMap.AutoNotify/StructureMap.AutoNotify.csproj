@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="AutoNotifyAttribute.cs" />
     <Compile Include="AutoNotifyScanner.cs" />
+    <Compile Include="DependencyMap.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="LooseConstructorInstance.cs" />
     <Compile Include="Notifiable.cs" />

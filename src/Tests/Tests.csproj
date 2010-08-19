@@ -54,6 +54,7 @@
     <Compile Include="CanMakeNotifiableForConcreteClass.cs" />
     <Compile Include="CanMakeNotifiableForInterface.cs" />
     <Compile Include="ContainerUsage.cs" />
+    <Compile Include="DependentProperties.cs" />
     <Compile Include="EventTracker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

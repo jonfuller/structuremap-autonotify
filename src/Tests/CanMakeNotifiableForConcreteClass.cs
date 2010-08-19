@@ -11,7 +11,7 @@ namespace Tests
         [TestCase]
         public void ShouldReturnAnINPCForConcreteObjectNoCtorArgs()
         {
-            var cat = Notifiable.MakeForClassGeneric<LolCat>(FireOptions.Always, new ProxyGenerator());
+            var cat = Notifiable.MakeForClassGeneric<LolCat>(FireOptions.Always, new ProxyGenerator(), new DependencyMap());
 
             Assert.That(cat, Is.InstanceOf<INotifyPropertyChanged>());
         }
@@ -19,7 +19,7 @@ namespace Tests
         [TestCase]
         public void ShouldReturnAnINPCForConcreteObjectWithCtorArgs()
         {
-            var obj = Notifiable.MakeForClassGeneric<ClassWithDependency>(FireOptions.Always, new ProxyGenerator(), new Dependency { Value = 4 });
+            var obj = Notifiable.MakeForClassGeneric<ClassWithDependency>(FireOptions.Always, new ProxyGenerator(), new DependencyMap(), new Dependency { Value = 4 });
 
             Assert.That(obj, Is.InstanceOf<INotifyPropertyChanged>());
             Assert.That(obj.Dependency.Value, Is.EqualTo(4));
@@ -28,7 +28,7 @@ namespace Tests
         [TestCase]
         public void ShouldFireChangedWhenVirtualPropertySetOnMadeObject()
         {
-            var cat = Notifiable.MakeForClassGeneric<LolCat>(FireOptions.Always, new ProxyGenerator());
+            var cat = Notifiable.MakeForClassGeneric<LolCat>(FireOptions.Always, new ProxyGenerator(), new DependencyMap());
 
             var tracker = new EventTracker<PropertyChangedEventHandler>();
 
@@ -42,7 +42,7 @@ namespace Tests
         [TestCase]
         public void ShouldNotFireChangedWhenVirtualPropertySetAndChangedOnMadeObjectWithChangeOnlyOption()
         {
-            var cat = Notifiable.MakeForClassGeneric<LolCat>(FireOptions.OnlyOnChange, new ProxyGenerator());
+            var cat = Notifiable.MakeForClassGeneric<LolCat>(FireOptions.OnlyOnChange, new ProxyGenerator(), new DependencyMap());
 
             var tracker = new EventTracker<PropertyChangedEventHandler>();
 
@@ -57,7 +57,7 @@ namespace Tests
         [TestCase]
         public void ShouldNotFireChangedWhenNonVirtualPropertyChangedOnMadeObject()
         {
-            var cat = Notifiable.MakeForClassGeneric<LolCat>(FireOptions.Always, new ProxyGenerator());
+            var cat = Notifiable.MakeForClassGeneric<LolCat>(FireOptions.Always, new ProxyGenerator(), new DependencyMap());
 
             var tracker = new EventTracker<PropertyChangedEventHandler>();
 

@@ -18,24 +18,35 @@ namespace StructureMap.AutoNotify
             logger.InfoFormat("Registering autonotify for {0}", type.Name);
 
             var fireOption = type.GetAttribute<AutoNotifyAttribute>().Fire;
+            var dependencyMap = GetDependencyMap(type.GetAttribute<AutoNotifyAttribute>().DependencyMap);
 
             if(type.IsInterface)
-                ConfigureInterface(type, graph, fireOption);
+                ConfigureInterface(type, graph, fireOption, dependencyMap);
             else if(!type.IsAbstract)
-                ConfigureClass(type, graph, fireOption);
+                ConfigureClass(type, graph, fireOption, dependencyMap);
         }
 
-        private void ConfigureInterface(Type type, PluginGraph graph, FireOptions fireOption)
+        static DependencyMap GetDependencyMap(Type dependencyMapType)
+        {
+            if (dependencyMapType == null)
+                return new DependencyMap();
+            if (!typeof(DependencyMap).IsAssignableFrom(dependencyMapType))
+                throw new InvalidOperationException(string.Format("The type {0} is not a valid dependency map.", dependencyMapType.Name));
+
+            return (DependencyMap)Activator.CreateInstance(dependencyMapType);
+        }
+
+        private void ConfigureInterface(Type type, PluginGraph graph, FireOptions fireOption, DependencyMap dependencyMap)
         {
             graph.Configure(registry =>
             {
                 registry
                     .For(type)
-                    .EnrichWith((context, obj) => Notifiable.MakeForInterface(type, obj, fireOption, new ProxyGenerator()));
+                    .EnrichWith((context, obj) => Notifiable.MakeForInterface(type, obj, fireOption, new ProxyGenerator(), dependencyMap));
             });
         }
 
-        private void ConfigureClass(Type type, PluginGraph graph, FireOptions fireOption)
+        private void ConfigureClass(Type type, PluginGraph graph, FireOptions fireOption, DependencyMap dependencyMap)
         {
             graph.Configure(registry =>
             {
@@ -46,7 +57,7 @@ namespace StructureMap.AutoNotify
                         .GetParameters()
                         .Select(p => context.GetInstance(p.ParameterType));
 
-                    return Notifiable.MakeForClass(type, fireOption, ctorArgs.ToArray(), new ProxyGenerator());
+                    return Notifiable.MakeForClass(type, fireOption, ctorArgs.ToArray(), new ProxyGenerator(), dependencyMap);
                 });
 
                 registry.For(type).Use(inst);

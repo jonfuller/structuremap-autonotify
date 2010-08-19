@@ -1,4 +1,7 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
 using Castle.Core.Interceptor;
 using log4net;
 
@@ -7,11 +10,13 @@ namespace StructureMap.AutoNotify
     public class PropertyChangedDecorator : IInterceptor
     {
         readonly FireOptions _fireOption;
+        readonly DependencyMap _dependencyMap;
         static readonly ILog logger = LogManager.GetLogger(typeof(PropertyChangedDecorator));
 
-        public PropertyChangedDecorator(FireOptions fireOption)
+        public PropertyChangedDecorator(FireOptions fireOption, DependencyMap dependencyMap)
         {
             _fireOption = fireOption;
+            _dependencyMap = dependencyMap;
         }
 
         const string SetPrefix = "set_";
@@ -51,6 +56,8 @@ namespace StructureMap.AutoNotify
                 if(FireOptions.Always == _fireOption)
                 {
                     Notify(invocation, propertyName);
+
+                    SetDependents(_dependencyMap, propertyName, invocation);
                     return;
                 }
 
@@ -69,6 +76,7 @@ namespace StructureMap.AutoNotify
                     {
                         logger.DebugFormat("Values are not equal.");
                         Notify(invocation, propertyName);
+                        SetDependents(_dependencyMap, propertyName, invocation);
                     }
 
                     return;
@@ -76,6 +84,22 @@ namespace StructureMap.AutoNotify
 
             }
         }
+
+        void SetDependents(DependencyMap dependencyMap, string propertyName, IInvocation invocation)
+        {
+            dependencyMap.Map.Where(x => x.SourcePropName == propertyName).Each(propDependency =>
+            {
+                var target = invocation.InvocationTarget;
+
+                var setter = target.GetType().BaseType.GetProperty(propDependency.TargetPropName).GetSetMethod(true);
+                var newValue = propDependency.Setter(target);
+
+                setter.Invoke(target, new[] {newValue});
+
+                Notify(invocation, propDependency.TargetPropName);
+            });
+        }
+
 
         private bool AreEqual(object oldValue, object newValue)
         {

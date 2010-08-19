@@ -16,7 +16,7 @@ namespace Tests
             {
                 config
                     .For<IFoo>()
-                    .EnrichAllWith((context, obj) => Notifiable.MakeForInterfaceGeneric(obj, FireOptions.Always, new ProxyGenerator()))
+                    .EnrichAllWith((context, obj) => Notifiable.MakeForInterfaceGeneric(obj, FireOptions.Always, new ProxyGenerator(), new DependencyMap()))
                     .Use<Foo>();
             });
 
@@ -41,7 +41,7 @@ namespace Tests
             {
                 config
                     .For<Bar>()
-                    .Use(context => Notifiable.MakeForClassGeneric<Bar>(FireOptions.Always, new ProxyGenerator()));
+                    .Use(context => Notifiable.MakeForClassGeneric<Bar>(FireOptions.Always, new ProxyGenerator(), new DependencyMap()));
             });
 
             var bar = container.GetInstance<Bar>();
@@ -85,7 +85,6 @@ namespace Tests
             rock.Value = "test";
 
             Assert.That(rockTracker.WasNotCalled);
-
         }
     }
 

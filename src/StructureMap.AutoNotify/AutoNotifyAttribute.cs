@@ -15,6 +15,8 @@ namespace StructureMap.AutoNotify
         /// </summary>
         /// <remarks>Defaults to <see cref="FireOptions.Always"/>.</remarks>
         public FireOptions Fire { get; set; }
+
+        public Type DependencyMap { get; set; }
     }
 
     public enum FireOptions
