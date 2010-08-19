@@ -90,12 +90,6 @@ namespace Tests
         public virtual string FirstName { get; set; }
         public virtual string LastName { get; set; }
         public virtual string Name { get; private set; }
-
-        //[DependsOn("FirstName", "LastName")]
-        //public virtual string Name2
-        //{
-        //    get { return FirstName + " " + LastName; }
-        //}
     }
 
     public class ContactDependency : DependencyMap<Contact>
@@ -104,8 +98,6 @@ namespace Tests
         {
             Property(x => x.FirstName).ShouldUpdate(x => x.Name).With(UpdateName);
             Property(x => x.LastName).ShouldUpdate(x => x.Name).With(UpdateName);
-
-            For(x => x.Name).ItIs(x => x.FirstName + " " + x.LastName);
         }
 
         public string UpdateName(Contact contact)
