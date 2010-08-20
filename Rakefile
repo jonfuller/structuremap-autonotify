@@ -14,13 +14,6 @@ msbuild do |msb|
   msb.solution = 'src/StructureMap.AutoNotify.sln'
 end
 
-desc 'Install .NET assemblies that this project relies on'
-task :deps do
-  sh 'bundle', 'cache'
-  gem_install_cmd = %W(gem install -i lib --no-rdoc --no-ri) + FileList['vendor/cache/*.gem']
-  sh(*gem_install_cmd)
-end
-
 Noodle::Rake::NoodleTask.new do |noodle|
   noodle.groups << :dotnet
 end
