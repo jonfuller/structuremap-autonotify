@@ -1,10 +1,10 @@
 ﻿using System.ComponentModel;
 using NUnit.Framework;
 using StructureMap.AutoNotify;
-using StructureMap.AutoNotify.Interception;
+using Tests.Util;
 using Container = StructureMap.Container;
 
-namespace Tests
+namespace Tests.Examples.DependentProperties
 {
     [TestFixture]
     public class DependentPropertiesWithSettersInDependencyMap

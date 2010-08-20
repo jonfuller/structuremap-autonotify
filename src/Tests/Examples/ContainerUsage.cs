@@ -2,9 +2,10 @@
 using Castle.DynamicProxy;
 using NUnit.Framework;
 using StructureMap.AutoNotify;
+using Tests.Util;
 using Container = StructureMap.Container;
 
-namespace Tests
+namespace Tests.Examples
 {
     [TestFixture]
     public class ContainerUsage

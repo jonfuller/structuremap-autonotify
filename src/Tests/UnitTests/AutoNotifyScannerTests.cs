@@ -3,7 +3,7 @@ using NUnit.Framework;
 using StructureMap.AutoNotify;
 using Container = StructureMap.Container;
 
-namespace Tests
+namespace Tests.UnitTests
 {
     [TestFixture]
     public class AutoNotifyScannerTests

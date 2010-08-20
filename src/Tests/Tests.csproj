@@ -50,12 +50,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AutoNotifyScannerTests.cs" />
-    <Compile Include="CanMakeNotifiableForConcreteClass.cs" />
-    <Compile Include="CanMakeNotifiableForInterface.cs" />
-    <Compile Include="ContainerUsage.cs" />
-    <Compile Include="DependentProperties.cs" />
-    <Compile Include="EventTracker.cs" />
+    <Compile Include="UnitTests\AutoNotifyScannerTests.cs" />
+    <Compile Include="UnitTests\CanMakeNotifiableForConcreteClass.cs" />
+    <Compile Include="UnitTests\CanMakeNotifiableForInterface.cs" />
+    <Compile Include="Examples\ContainerUsage.cs" />
+    <Compile Include="Examples\DependentProperties\DependentProperties.cs" />
+    <Compile Include="Util\EventTracker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

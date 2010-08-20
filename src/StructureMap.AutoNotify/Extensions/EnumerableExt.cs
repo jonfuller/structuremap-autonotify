@@ -39,5 +39,12 @@ namespace StructureMap.AutoNotify.Extensions
         {
             return target.Count() > 0;
         }
+
+        public static IEnumerable<T> Prepend<T>(this IEnumerable<T> target, T toPrepend)
+        {
+            yield return toPrepend;
+            foreach(var item in target)
+                yield return item;
+        }
     }
 }

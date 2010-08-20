@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using StructureMap.AutoNotify.Extensions;
 
-namespace Tests
+namespace Tests.Util
 {
     public class EventTracker<TDelegate>
         where TDelegate : class
@@ -59,16 +59,6 @@ namespace Tests
         private void Invoked()
         {
             CallCount++;
-        }
-    }
-
-    public static class Ext
-    {
-        public static IEnumerable<T> Prepend<T>(this IEnumerable<T> target, T toPrepend)
-        {
-            yield return toPrepend;
-            foreach(var item in target)
-                yield return item;
         }
     }
 }

@@ -3,8 +3,9 @@ using System.ComponentModel;
 using Castle.DynamicProxy;
 using NUnit.Framework;
 using StructureMap.AutoNotify;
+using Tests.Util;
 
-namespace Tests
+namespace Tests.UnitTests
 {
     [TestFixture]
     public class CanMakeNotifiableForInterface
