@@ -8,13 +8,20 @@ using StructureMap.Graph;
 
 namespace StructureMap.AutoNotify
 {
-    public class AutoNotifyAttrConvention : IRegistrationConvention
+    public class AutoNotifyPredicateConvention : IRegistrationConvention
     {
         static readonly ILog logger = LogManager.GetLogger(typeof(AutoNotifyAttrConvention));
 
+        readonly Func<Type, bool> _shouldAutoNotify;
+
+        public AutoNotifyPredicateConvention(Func<Type, bool> shouldAutoNotify)
+        {
+            _shouldAutoNotify = shouldAutoNotify;
+        }
+
         public void Process(Type type, Registry registry)
         {
-            if(type.IsEnum || !type.HasAttribute<AutoNotifyAttribute>())
+            if(!_shouldAutoNotify(type))
                 return;
 
             logger.InfoFormat("Registering autonotify for {0}", type.Name);
@@ -81,6 +88,14 @@ namespace StructureMap.AutoNotify
             });
 
             registry.For(type).Use(inst);
+        }
+    }
+
+    public class AutoNotifyAttrConvention : AutoNotifyPredicateConvention
+    {
+        public AutoNotifyAttrConvention() :
+            base(type => !(!type.IsEnum && type.HasAttribute<AutoNotifyAttribute>()))
+        {
         }
     }
 }

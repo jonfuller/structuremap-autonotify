@@ -65,7 +65,7 @@ namespace Tests.Examples
         {
             var container = new Container(config => config.Scan(scanConfig =>
             {
-                scanConfig.With<AutoNotifyAttrConvention>();
+                scanConfig.With(new AutoNotifyAttrConvention());
                 scanConfig.TheCallingAssembly();
                 scanConfig.WithDefaultConventions();
             }));
