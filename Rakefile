@@ -36,7 +36,7 @@ namespace :gem do
     gemspec.name = "structuremap.autonotify"
     gemspec.summary = "A project to automatically implement INotifyPropertyChanged using DynamicProxy2"
     gemspec.description = "A project to automatically implement INotifyPropertyChanged using DynamicProxy2"
-    gemspec.email = ["maburke@sep.com", "jcfuller@sep.com"]
+    gemspec.email = ["maburke@sep.com", "fullerjc@gmail.com"]
     gemspec.authors = ["Jon Fuller", "Matt Burke"]
     gemspec.files = [gem_dll, 'VERSION']
     gemspec.add_dependency 'structuremap'
