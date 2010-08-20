@@ -54,10 +54,12 @@
     <Compile Include="Examples\ContainerUsage\AutoNotifyFireOptions.cs" />
     <Compile Include="Examples\ContainerUsage\OneOffForClass.cs" />
     <Compile Include="Examples\ContainerUsage\OneOffForInterface.cs" />
+    <Compile Include="Examples\DependentProperties\DependentPropertiesDependencyMapWithCalculatedReadOnlyGetters.cs" />
+    <Compile Include="Examples\DependentProperties\DependentPropertiesWithSettersInDependencyMap.cs" />
     <Compile Include="UnitTests\AutoNotifyScannerTests.cs" />
     <Compile Include="UnitTests\CanMakeNotifiableForConcreteClass.cs" />
     <Compile Include="UnitTests\CanMakeNotifiableForInterface.cs" />
-    <Compile Include="Examples\DependentProperties\DependentProperties.cs" />
+    <Compile Include="Examples\DependentProperties\DependentPropertiesUsingDependsOnAttributeWithReadOnlyGetters.cs" />
     <Compile Include="Util\EventTracker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
