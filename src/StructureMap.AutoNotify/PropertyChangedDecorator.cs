@@ -38,17 +38,17 @@ namespace StructureMap.AutoNotify
             WrapInvocation(this, invocation, _fireOption, logger).Call();
         }
 
-        static IToCall WrapInvocation(PropertyChangedDecorator propertyChangedDecorator, IInvocation invocation, FireOptions fireOption, ILog log)
+        static IInterception WrapInvocation(PropertyChangedDecorator propertyChangedDecorator, IInvocation invocation, FireOptions fireOption, ILog log)
         {
             if(invocation.IsPropertyChangedAdd())
-                return new PropertyChangedAddToCall(propertyChangedDecorator, invocation);
+                return new PropertyChangedAddInterception(propertyChangedDecorator, invocation);
             if(invocation.IsPropertyChangedRemove())
-                return new PropertyChangedRemoveToCall(propertyChangedDecorator, invocation);
+                return new PropertyChangedRemoveInterception(propertyChangedDecorator, invocation);
             if(invocation.IsPropertySetter() && FireOptions.OnlyOnChange == fireOption)
-                return new OnlyOnChangePropertySetterToCall(propertyChangedDecorator, invocation, invocation.PropertyName(), log);
+                return new OnlyOnChangePropertySetterInterception(propertyChangedDecorator, invocation, invocation.PropertyName(), log);
             if(invocation.IsPropertySetter())
-                return new PropertySetterToCall(propertyChangedDecorator, invocation);
-            return new InvocationToCall(invocation);
+                return new PropertySetterInterception(propertyChangedDecorator, invocation);
+            return new InvocationInterception(invocation);
         }
 
         public void Notify(IInvocation invocation)
@@ -83,12 +83,12 @@ namespace StructureMap.AutoNotify
         }
     }
 
-    class PropertySetterToCall : IToCall
+    class PropertySetterInterception : IInterception
     {
         readonly PropertyChangedDecorator _propertyChangedDecorator;
         readonly IInvocation _invocation;
 
-        public PropertySetterToCall(PropertyChangedDecorator propertyChangedDecorator, IInvocation invocation)
+        public PropertySetterInterception(PropertyChangedDecorator propertyChangedDecorator, IInvocation invocation)
         {
             _propertyChangedDecorator = propertyChangedDecorator;
             _invocation = invocation;
@@ -102,11 +102,11 @@ namespace StructureMap.AutoNotify
         }
     }
 
-    class InvocationToCall : IToCall
+    class InvocationInterception : IInterception
     {
         readonly IInvocation _invocation;
 
-        public InvocationToCall(IInvocation invocation)
+        public InvocationInterception(IInvocation invocation)
         {
             _invocation = invocation;
         }
@@ -117,14 +117,14 @@ namespace StructureMap.AutoNotify
         }
     }
 
-    class OnlyOnChangePropertySetterToCall : IToCall
+    class OnlyOnChangePropertySetterInterception : IInterception
     {
         readonly PropertyChangedDecorator _propertyChangedDecorator;
         readonly IInvocation _invocation;
         readonly string _propertyName;
         readonly ILog _logger;
 
-        public OnlyOnChangePropertySetterToCall(PropertyChangedDecorator propertyChangedDecorator, IInvocation invocation, string propertyName, ILog logger)
+        public OnlyOnChangePropertySetterInterception(PropertyChangedDecorator propertyChangedDecorator, IInvocation invocation, string propertyName, ILog logger)
         {
             _propertyChangedDecorator = propertyChangedDecorator;
             _invocation = invocation;
@@ -164,12 +164,12 @@ namespace StructureMap.AutoNotify
         }
     }
 
-    class PropertyChangedRemoveToCall : IToCall
+    class PropertyChangedRemoveInterception : IInterception
     {
         readonly PropertyChangedDecorator _propertyChangedDecorator;
         readonly IInvocation _invocation;
 
-        public PropertyChangedRemoveToCall(PropertyChangedDecorator propertyChangedDecorator, IInvocation invocation)
+        public PropertyChangedRemoveInterception(PropertyChangedDecorator propertyChangedDecorator, IInvocation invocation)
         {
             _propertyChangedDecorator = propertyChangedDecorator;
             _invocation = invocation;
@@ -182,12 +182,12 @@ namespace StructureMap.AutoNotify
         }
     }
 
-    class PropertyChangedAddToCall : IToCall
+    class PropertyChangedAddInterception : IInterception
     {
         readonly PropertyChangedDecorator _propertyChangedDecorator;
         readonly IInvocation _invocation;
 
-        public PropertyChangedAddToCall(PropertyChangedDecorator propertyChangedDecorator, IInvocation invocation)
+        public PropertyChangedAddInterception(PropertyChangedDecorator propertyChangedDecorator, IInvocation invocation)
         {
             _propertyChangedDecorator = propertyChangedDecorator;
             _invocation = invocation;
@@ -200,7 +200,7 @@ namespace StructureMap.AutoNotify
         }
     }
 
-    interface IToCall
+    interface IInterception
     {
         void Call();
     }
