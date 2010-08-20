@@ -50,10 +50,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Examples\ContainerUsage\AutoNotifyAttributeConvention.cs" />
+    <Compile Include="Examples\ContainerUsage\OneOffForClass.cs" />
+    <Compile Include="Examples\ContainerUsage\OneOffForInterface.cs" />
     <Compile Include="UnitTests\AutoNotifyScannerTests.cs" />
     <Compile Include="UnitTests\CanMakeNotifiableForConcreteClass.cs" />
     <Compile Include="UnitTests\CanMakeNotifiableForInterface.cs" />
-    <Compile Include="Examples\ContainerUsage.cs" />
     <Compile Include="Examples\DependentProperties\DependentProperties.cs" />
     <Compile Include="Util\EventTracker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -64,6 +66,7 @@
       <Name>StructureMap.AutoNotify</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
