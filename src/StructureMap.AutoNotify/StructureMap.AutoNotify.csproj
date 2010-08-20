@@ -57,8 +57,10 @@
     <Compile Include="AutoNotifyScanner.cs" />
     <Compile Include="DependencyMap.cs" />
     <Compile Include="DependsOnAttribute.cs" />
+    <Compile Include="Extensions\EnumerableExt.cs" />
     <Compile Include="Extensions\Extensions.cs" />
     <Compile Include="Extensions\InvocationExt.cs" />
+    <Compile Include="Extensions\ReflectionExt.cs" />
     <Compile Include="Interception\IInterception.cs" />
     <Compile Include="Interception\Interception.cs" />
     <Compile Include="Interception\InvocationInterception.cs" />
