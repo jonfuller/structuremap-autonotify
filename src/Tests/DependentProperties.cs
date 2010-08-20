@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using NUnit.Framework;
 using StructureMap.AutoNotify;
+using StructureMap.AutoNotify.Interception;
 using Container = StructureMap.Container;
 
 namespace Tests
