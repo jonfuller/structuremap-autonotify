@@ -6,7 +6,7 @@ using Container = StructureMap.Container;
 namespace Tests
 {
     [TestFixture]
-    public class DependentProperties
+    public class DependentPropertiesWithSettersInDependencyMap
     {
         [Test]
         public void UsingDependentPropertiesUpdatesRelatedProps()
@@ -67,6 +67,47 @@ namespace Tests
             Assert.That(contact.Name, Is.EqualTo("Jonathon Fuller"));
         }
 
+        [AutoNotify(DependencyMap = typeof(BookDependency))]
+        public class Book
+        {
+            public virtual string[] Authors { get; set; }
+            public virtual string Title { get; set; }
+            public virtual int AuthorCount { get; private set; }
+        }
+
+        public class BookDependency : DependencyMap<Book>
+        {
+            public BookDependency()
+            {
+                Property(x => x.Authors).Updates(x => x.AuthorCount).With(x => x.Authors.Length);
+            }
+        }
+
+        [AutoNotify(Fire = FireOptions.OnlyOnChange, DependencyMap = typeof(ContactDependency))]
+        public class Contact
+        {
+            public virtual string FirstName { get; set; }
+            public virtual string LastName { get; set; }
+            public virtual string Name { get; private set; }
+        }
+
+        public class ContactDependency : DependencyMap<Contact>
+        {
+            public ContactDependency()
+            {
+                Property(x => x.FirstName).Updates(x => x.Name).With(UpdateName);
+                Property(x => x.LastName).Updates(x => x.Name).With(UpdateName);
+            }
+
+            public string UpdateName(Contact contact)
+            {
+                return contact.FirstName + " " + contact.LastName;
+            }
+        }
+    }
+
+    public class DependentPropertiesDependencyMapWithCalculatedReadOnlyGetters
+    {
         [Test]
         public void UsingDependentPropertiesUpdatesRelatedWhenUsingDependsOnInDependencyMap()
         {
@@ -86,6 +127,25 @@ namespace Tests
             Assert.That(projectTracker.CallCount, Is.EqualTo(2)); // one for Files, one for FileCount
         }
 
+        [AutoNotify(DependencyMap = typeof(ProjectDependency))]
+        public class Project
+        {
+            public virtual string Name { get; set; }
+            public virtual string[] Files { get; set; }
+            public virtual int FileCount { get { return Files.Length; } }
+        }
+
+        public class ProjectDependency : DependencyMap<Project>
+        {
+            public ProjectDependency()
+            {
+                Property(x => x.FileCount).DependsOn(x => x.Files);
+            }
+        }
+    }
+
+    public class DependentPropertiesUsingDependsOnAttributeWithReadOnlyGetters
+    {
         [Test]
         public void UsingDependentPropertiesUpdatesRelatedWhenUsingDependsOnAttribute()
         {
@@ -105,72 +165,18 @@ namespace Tests
 
             Assert.That(projectTracker.CallCount, Is.EqualTo(4));
         }
-    }
 
-    [AutoNotify(DependencyMap = typeof(BookDependency))]
-    public class Book
-    {
-        public virtual string[] Authors { get; set; }
-        public virtual string Title { get; set; }
-        public virtual int AuthorCount { get; private set; }
-    }
-
-    public class BookDependency : DependencyMap<Book>
-    {
-        public BookDependency()
+        [AutoNotify]
+        public class Account
         {
-            Property(x => x.Authors).Updates(x => x.AuthorCount).With(x => x.Authors.Length);
-        }
-    }
+            public virtual string AccountName { get; set; }
+            public virtual string ClientId { get; set; }
 
-    [AutoNotify(Fire = FireOptions.OnlyOnChange, DependencyMap = typeof(ContactDependency))]
-    public class Contact
-    {
-        public virtual string FirstName { get; set; }
-        public virtual string LastName { get; set; }
-        public virtual string Name { get; private set; }
-    }
-
-    public class ContactDependency : DependencyMap<Contact>
-    {
-        public ContactDependency()
-        {
-            Property(x => x.FirstName).Updates(x => x.Name).With(UpdateName);
-            Property(x => x.LastName).Updates(x => x.Name).With(UpdateName);
-        }
-
-        public string UpdateName(Contact contact)
-        {
-            return contact.FirstName + " " + contact.LastName;
-        }
-    }
-
-    [AutoNotify]
-    public class Account
-    {
-        public virtual string AccountName { get; set; }
-        public virtual string ClientId { get; set; }
-
-        [DependsOn("AccountName", "ClientId")]
-        public virtual string AccountId
-        {
-            get { return ClientId + "/" + AccountName; }
-        }
-    }
-
-    [AutoNotify(DependencyMap = typeof(ProjectDependency))]
-    public class Project
-    {
-        public virtual string Name { get; set; }
-        public virtual string[] Files { get; set; }
-        public virtual int FileCount { get { return Files.Length; } }
-    }
-
-    public class ProjectDependency : DependencyMap<Project>
-    {
-        public ProjectDependency()
-        {
-            Property(x => x.FileCount).DependsOn(x => x.Files);
+            [DependsOn("AccountName", "ClientId")]
+            public virtual string AccountId
+            {
+                get { return ClientId + "/" + AccountName; }
+            }
         }
     }
 }
