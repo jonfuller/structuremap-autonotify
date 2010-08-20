@@ -76,7 +76,7 @@ namespace Tests
             public virtual int AuthorCount { get; private set; }
         }
 
-        public class BookDependency : DependencyMap<Book>
+        class BookDependency : DependencyMap<Book>
         {
             public BookDependency()
             {
@@ -92,7 +92,7 @@ namespace Tests
             public virtual string Name { get; private set; }
         }
 
-        public class ContactDependency : DependencyMap<Contact>
+        class ContactDependency : DependencyMap<Contact>
         {
             public ContactDependency()
             {
@@ -100,13 +100,14 @@ namespace Tests
                 Property(x => x.LastName).Updates(x => x.Name).With(UpdateName);
             }
 
-            public string UpdateName(Contact contact)
+            static string UpdateName(Contact contact)
             {
                 return contact.FirstName + " " + contact.LastName;
             }
         }
     }
 
+    [TestFixture]
     public class DependentPropertiesDependencyMapWithCalculatedReadOnlyGetters
     {
         [Test]
@@ -136,7 +137,7 @@ namespace Tests
             public virtual int FileCount { get { return Files.Length; } }
         }
 
-        public class ProjectDependency : DependencyMap<Project>
+        class ProjectDependency : DependencyMap<Project>
         {
             public ProjectDependency()
             {
@@ -145,6 +146,7 @@ namespace Tests
         }
     }
 
+    [TestFixture]
     public class DependentPropertiesUsingDependsOnAttributeWithReadOnlyGetters
     {
         [Test]
