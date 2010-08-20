@@ -51,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Examples\ContainerUsage\AutoNotifyAttributeConvention.cs" />
+    <Compile Include="Examples\ContainerUsage\AutoNotifyFireOptions.cs" />
     <Compile Include="Examples\ContainerUsage\OneOffForClass.cs" />
     <Compile Include="Examples\ContainerUsage\OneOffForInterface.cs" />
     <Compile Include="UnitTests\AutoNotifyScannerTests.cs" />
