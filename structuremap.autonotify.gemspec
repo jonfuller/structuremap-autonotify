@@ -5,13 +5,13 @@
 
 Gem::Specification.new do |s|
   s.name = %q{structuremap.autonotify}
-  s.version = "0.1.1"
+  s.version = "0.2.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Jon Fuller", "Matt Burke"]
-  s.date = %q{2010-08-11}
+  s.date = %q{2010-08-20}
   s.description = %q{A project to automatically implement INotifyPropertyChanged using DynamicProxy2}
-  s.email = ["maburke@sep.com", "jcfuller@sep.com"]
+  s.email = ["maburke@sep.com", "fullerjc@gmail.com"]
   s.files = [
     "VERSION",
      "lib/StructureMap.AutoNotify.dll"
