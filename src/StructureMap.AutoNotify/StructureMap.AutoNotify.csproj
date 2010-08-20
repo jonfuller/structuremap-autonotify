@@ -54,7 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AutoNotifyAttribute.cs" />
-    <Compile Include="AutoNotifyScanner.cs" />
+    <Compile Include="AutoNotifyAttrConvention.cs" />
     <Compile Include="DependencyMap.cs" />
     <Compile Include="DependsOnAttribute.cs" />
     <Compile Include="Extensions\EnumerableExt.cs" />

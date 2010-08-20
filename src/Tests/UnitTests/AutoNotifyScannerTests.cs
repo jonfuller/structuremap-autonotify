@@ -13,7 +13,7 @@ namespace Tests.UnitTests
         {
             var container = new Container(config => config.Scan(scan =>
             {
-                scan.With<AutoNotifyScanner>();
+                scan.With<AutoNotifyAttrConvention>();
                 scan.TheCallingAssembly();
             }));
 
@@ -25,7 +25,7 @@ namespace Tests.UnitTests
         {
             var container = new Container(config => config.Scan(scan =>
             {
-                scan.With<AutoNotifyScanner>();
+                scan.With<AutoNotifyAttrConvention>();
                 scan.TheCallingAssembly();
             }));
 

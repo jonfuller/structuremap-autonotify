@@ -3,15 +3,16 @@ using System.Linq;
 using Castle.DynamicProxy;
 using log4net;
 using StructureMap.AutoNotify.Extensions;
+using StructureMap.Configuration.DSL;
 using StructureMap.Graph;
 
 namespace StructureMap.AutoNotify
 {
-    public class AutoNotifyScanner : ITypeScanner
+    public class AutoNotifyAttrConvention : IRegistrationConvention
     {
-        static readonly ILog logger = LogManager.GetLogger(typeof(AutoNotifyScanner));
+        static readonly ILog logger = LogManager.GetLogger(typeof(AutoNotifyAttrConvention));
 
-        public void Process(Type type, PluginGraph graph)
+        public void Process(Type type, Registry registry)
         {
             if(type.IsEnum || !type.HasAttribute<AutoNotifyAttribute>())
                 return;
@@ -25,9 +26,9 @@ namespace StructureMap.AutoNotify
                 .Tap(m => m.Map.AddRange(GetDependencyMapFromProps(type).Map));
 
             if(type.IsInterface)
-                ConfigureInterface(type, graph, fireOption, dependencyMap);
+                ConfigureInterface(type, registry, fireOption, dependencyMap);
             else if(!type.IsAbstract)
-                ConfigureClass(type, graph, fireOption, dependencyMap);
+                ConfigureClass(type, registry, fireOption, dependencyMap);
         }
 
         static DependencyMap GetDependencyMapFromProps(Type type)
@@ -60,32 +61,26 @@ namespace StructureMap.AutoNotify
             return (DependencyMap)Activator.CreateInstance(dependencyMapType);
         }
 
-        private void ConfigureInterface(Type type, PluginGraph graph, FireOptions fireOption, DependencyMap dependencyMap)
+        private static void ConfigureInterface(Type type, IRegistry registry, FireOptions fireOption, DependencyMap dependencyMap)
         {
-            graph.Configure(registry =>
-            {
-                registry
-                    .For(type)
-                    .EnrichWith((context, obj) => Notifiable.MakeForInterface(type, obj, fireOption, new ProxyGenerator(), dependencyMap));
-            });
+            registry
+                .For(type)
+                .EnrichWith((context, obj) => Notifiable.MakeForInterface(type, obj, fireOption, new ProxyGenerator(), dependencyMap));
         }
 
-        private void ConfigureClass(Type type, PluginGraph graph, FireOptions fireOption, DependencyMap dependencyMap)
+        private static void ConfigureClass(Type type, IRegistry registry, FireOptions fireOption, DependencyMap dependencyMap)
         {
-            graph.Configure(registry =>
+            var inst = new LooseConstructorInstance(context =>
             {
-                var inst = new LooseConstructorInstance(context =>
-                {
-                    var ctorArgs = type
-                        .GetGreediestCtor()
-                        .GetParameters()
-                        .Select(p => context.GetInstance(p.ParameterType));
+                var ctorArgs = type
+                    .GetGreediestCtor()
+                    .GetParameters()
+                    .Select(p => context.GetInstance(p.ParameterType));
 
-                    return Notifiable.MakeForClass(type, fireOption, ctorArgs.ToArray(), new ProxyGenerator(), dependencyMap);
-                });
-
-                registry.For(type).Use(inst);
+                return Notifiable.MakeForClass(type, fireOption, ctorArgs.ToArray(), new ProxyGenerator(), dependencyMap);
             });
+
+            registry.For(type).Use(inst);
         }
     }
 }
