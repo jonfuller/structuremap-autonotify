@@ -96,21 +96,30 @@ namespace StructureMap.AutoNotify
                 ObjectType = typeof(TObj),
                 SourcePropertyType = typeof(TSourceProp),
                 TargetPropertyType = typeof(TTargetProp),
-                Setter = o => setter((TObj)o),
+                NewValue = o => setter((TObj)o),
             });
         }
     }
 
     public class ReadOnlyPropertyDependency : PropertyDependency
     {
+        public override void WasChanged(object target){}
     }
 
     public class WritingPropertyDependency : PropertyDependency
     {
-        public Func<object, object> Setter { get; set; }
+        public Func<object, object> NewValue { get; set; }
+
+        public override void WasChanged(object target)
+        {
+            // the target should be a proxy, so it should ALWAYS be safe to use the base type
+            var setter = target.GetType().BaseType.GetProperty(TargetPropName).GetSetMethod(true);
+
+            setter.Invoke(target, new[] { NewValue(target) });
+        }
     }
 
-    public class PropertyDependency
+    public abstract class PropertyDependency
     {
         public Type ObjectType { get; set; }
         public Type SourcePropertyType { get; set; }
@@ -119,5 +128,7 @@ namespace StructureMap.AutoNotify
         public string TargetPropName { get; set; }
 
         public Type TargetPropertyType { get; set; }
+
+        public abstract void WasChanged(object target);
     }
 }

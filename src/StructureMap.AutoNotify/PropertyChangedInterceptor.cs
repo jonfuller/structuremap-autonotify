@@ -53,19 +53,14 @@ namespace StructureMap.AutoNotify
         {
             var propertyName = invocation.PropertyName();
 
-            _dependencyMap.Map.Where(x => x.SourcePropName == propertyName).Each(propDependency =>
-            {
-                var target = invocation.InvocationTarget;
-
-                if(propDependency is WritingPropertyDependency)
+            _dependencyMap
+                .Map
+                .Where(x => x.SourcePropName == propertyName)
+                .Each(propDependency =>
                 {
-                    var writingDep = propDependency as WritingPropertyDependency;
-                    var setter = target.GetType().BaseType.GetProperty(propDependency.TargetPropName).GetSetMethod(true);
-                    var newValue = writingDep.NewValue(target);
-
-                    setter.Invoke(target, new[] { newValue });
-                }
-                Notify(invocation);
-            });        }
+                    propDependency.WasChanged(invocation.InvocationTarget);
+                    Notify(invocation);
+                });
+        }
     }
 }
