@@ -1,18 +1,31 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Linq;
 using Castle.Core.Interceptor;
 using log4net;
+using StructureMap.AutoNotify.Extensions;
 
 namespace StructureMap.AutoNotify
 {
     public class PropertyChangedDecorator : IInterceptor
     {
-        const string SetPrefix = "set_";
-
         readonly FireOptions _fireOption;
         readonly DependencyMap _dependencyMap;
         static readonly ILog logger = LogManager.GetLogger(typeof(PropertyChangedDecorator));
+
+        event PropertyChangedEventHandler _propertyChanged = (o, e) => { };
+        public event PropertyChangedEventHandler PropertyChanged
+        {
+            add
+            {
+                _propertyChanged += value;
+                logger.DebugFormat("{0} subscribed to an autonotify", value.Target.GetType().Name);
+            }
+            remove
+            {
+                _propertyChanged -= value;
+                logger.DebugFormat("{0} unsubscribed to an autonotify", value.Target.GetType().Name);
+            }
+        }
 
         public PropertyChangedDecorator(FireOptions fireOption, DependencyMap dependencyMap)
         {
@@ -20,28 +33,38 @@ namespace StructureMap.AutoNotify
             _dependencyMap = dependencyMap;
         }
 
-
         public void Intercept(IInvocation invocation)
         {
             WrapInvocation(this, invocation, _fireOption, logger).Call();
         }
 
-        IToCall WrapInvocation(PropertyChangedDecorator propertyChangedDecorator, IInvocation invocation, FireOptions fireOption, ILog log)
+        static IToCall WrapInvocation(PropertyChangedDecorator propertyChangedDecorator, IInvocation invocation, FireOptions fireOption, ILog log)
         {
-            if(IsPropertyChangedAdd(invocation))
+            if(invocation.IsPropertyChangedAdd())
                 return new PropertyChangedAddToCall(propertyChangedDecorator, invocation);
-            if(IsPropertyChangedRemove(invocation))
+            if(invocation.IsPropertyChangedRemove())
                 return new PropertyChangedRemoveToCall(propertyChangedDecorator, invocation);
-            if(IsPropertySetter(invocation) && FireOptions.OnlyOnChange == fireOption)
-                return new OnlyOnChangePropertySetterToCall(propertyChangedDecorator, invocation, GetPropertyName(invocation), log);
-            if(IsPropertySetter(invocation))
+            if(invocation.IsPropertySetter() && FireOptions.OnlyOnChange == fireOption)
+                return new OnlyOnChangePropertySetterToCall(propertyChangedDecorator, invocation, invocation.PropertyName(), log);
+            if(invocation.IsPropertySetter())
                 return new PropertySetterToCall(propertyChangedDecorator, invocation);
             return new InvocationToCall(invocation);
         }
 
+        public void Notify(IInvocation invocation)
+        {
+            var propertyName = invocation.PropertyName();
+
+            logger.DebugFormat("Firing PropertyChanged for {0}.{1}",
+                               invocation.InvocationTarget.GetType().Name,
+                               propertyName);
+
+            _propertyChanged(invocation.InvocationTarget, new PropertyChangedEventArgs(propertyName));
+        }
+
         public void SetDependents(IInvocation invocation)
         {
-            var propertyName = GetPropertyName(invocation);
+            var propertyName = invocation.PropertyName();
 
             _dependencyMap.Map.Where(x => x.SourcePropName == propertyName).Each(propDependency =>
             {
@@ -58,52 +81,6 @@ namespace StructureMap.AutoNotify
                 Notify(invocation);
             });
         }
-
-        public void Notify(IInvocation invocation)
-        {
-            var propertyName = GetPropertyName(invocation);
-
-            logger.DebugFormat("Firing PropertyChanged for {0}.{1}",
-                               invocation.InvocationTarget.GetType().Name,
-                               propertyName);
-
-            _propertyChanged(invocation.InvocationTarget, new PropertyChangedEventArgs(propertyName));
-        }
-
-        private bool IsPropertyChangedAdd(IInvocation invocation)
-        {
-            return invocation.Method.Name == "add_PropertyChanged";
-        }
-
-        private bool IsPropertyChangedRemove(IInvocation invocation)
-        {
-            return invocation.Method.Name == "remove_PropertyChanged";
-        }
-
-        private bool IsPropertySetter(IInvocation invocation)
-        {
-            return invocation.Method.IsSpecialName && invocation.Method.Name.StartsWith(SetPrefix);
-        }
-
-        private string GetPropertyName(IInvocation invocation)
-        {
-            return invocation.Method.Name.Substring(SetPrefix.Length);
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged
-        {
-            add
-            {
-                _propertyChanged += value;
-                logger.DebugFormat("{0} subscribed to an autonotify", value.Target.GetType().Name);
-            }
-            remove
-            {
-                _propertyChanged -= value;
-                logger.DebugFormat("{0} unsubscribed to an autonotify", value.Target.GetType().Name);
-            }
-        }
-        event PropertyChangedEventHandler _propertyChanged = (o, e) => { };
     }
 
     class PropertySetterToCall : IToCall
