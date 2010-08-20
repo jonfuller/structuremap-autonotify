@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Linq;
 using Castle.Core.Interceptor;
 using log4net;
@@ -7,6 +8,8 @@ namespace StructureMap.AutoNotify
 {
     public class PropertyChangedDecorator : IInterceptor
     {
+        const string SetPrefix = "set_";
+
         readonly FireOptions _fireOption;
         readonly DependencyMap _dependencyMap;
         static readonly ILog logger = LogManager.GetLogger(typeof(PropertyChangedDecorator));
@@ -17,75 +20,30 @@ namespace StructureMap.AutoNotify
             _dependencyMap = dependencyMap;
         }
 
-        const string SetPrefix = "set_";
 
         public void Intercept(IInvocation invocation)
         {
-            if(IsPropertyChangedAdd(invocation))
-            {
-                var onPropertyChanged = (PropertyChangedEventHandler)invocation.GetArgumentValue(0);
-                logger.DebugFormat("{0} subscribed to an autonotify", onPropertyChanged.Target.GetType().Name);
-                PropertyChanged += onPropertyChanged;
-                return;
-            }
-            if(IsPropertyChangedRemove(invocation))
-            {
-                var onPropertyChanged = (PropertyChangedEventHandler)invocation.GetArgumentValue(0);
-                logger.DebugFormat("{0} unsubscribed to an autonotify", onPropertyChanged.Target.GetType().Name);
-                PropertyChanged -= onPropertyChanged;
-                return;
-            }
-
-            object oldValue = null;
-
-            if(IsPropertySetter(invocation))
-            {
-                oldValue = invocation.InvocationTarget
-                    .GetType()
-                    .GetProperty(GetPropertyName(invocation))
-                    .GetValue(invocation.InvocationTarget, new object[0]);
-            }
-
-            invocation.Proceed();
-            if(IsPropertySetter(invocation))
-            {
-                var propertyName = GetPropertyName(invocation);
-
-                if(FireOptions.Always == _fireOption)
-                {
-                    Notify(invocation, propertyName);
-
-                    SetDependents(_dependencyMap, propertyName, invocation);
-                    return;
-                }
-
-                if(FireOptions.OnlyOnChange == _fireOption)
-                {
-                    var newValue = invocation.GetArgumentValue(0);
-
-                    logger.DebugFormat("Old value: {0}", oldValue);
-                    logger.DebugFormat("New value: {0}", newValue);
-
-                    if(AreEqual(oldValue, newValue))
-                    {
-                        logger.DebugFormat("Values are 'equal', not firing PropertyChanged");
-                    }
-                    else
-                    {
-                        logger.DebugFormat("Values are not equal.");
-                        Notify(invocation, propertyName);
-                        SetDependents(_dependencyMap, propertyName, invocation);
-                    }
-
-                    return;
-                }
-
-            }
+            WrapInvocation(this, invocation, _fireOption, logger).Call();
         }
 
-        void SetDependents(DependencyMap dependencyMap, string propertyName, IInvocation invocation)
+        IToCall WrapInvocation(PropertyChangedDecorator propertyChangedDecorator, IInvocation invocation, FireOptions fireOption, ILog log)
         {
-            dependencyMap.Map.Where(x => x.SourcePropName == propertyName).Each(propDependency =>
+            if(IsPropertyChangedAdd(invocation))
+                return new PropertyChangedAddToCall(propertyChangedDecorator, invocation);
+            if(IsPropertyChangedRemove(invocation))
+                return new PropertyChangedRemoveToCall(propertyChangedDecorator, invocation);
+            if(IsPropertySetter(invocation) && FireOptions.OnlyOnChange == fireOption)
+                return new OnlyOnChangePropertySetterToCall(propertyChangedDecorator, invocation, GetPropertyName(invocation), log);
+            if(IsPropertySetter(invocation))
+                return new PropertySetterToCall(propertyChangedDecorator, invocation);
+            return new InvocationToCall(invocation);
+        }
+
+        public void SetDependents(IInvocation invocation)
+        {
+            var propertyName = GetPropertyName(invocation);
+
+            _dependencyMap.Map.Where(x => x.SourcePropName == propertyName).Each(propDependency =>
             {
                 var target = invocation.InvocationTarget;
 
@@ -97,25 +55,19 @@ namespace StructureMap.AutoNotify
 
                     setter.Invoke(target, new[] { newValue });
                 }
-                Notify(invocation, propDependency.TargetPropName);
+                Notify(invocation);
             });
         }
 
-
-        private bool AreEqual(object oldValue, object newValue)
+        public void Notify(IInvocation invocation)
         {
-            return (oldValue == null && newValue == null)
-                   || (oldValue != null && oldValue.Equals(newValue))
-                   || (newValue != null && newValue.Equals(oldValue));
-        }
+            var propertyName = GetPropertyName(invocation);
 
-        private void Notify(IInvocation invocation, string propertyName)
-        {
             logger.DebugFormat("Firing PropertyChanged for {0}.{1}",
                                invocation.InvocationTarget.GetType().Name,
                                propertyName);
 
-            PropertyChanged(invocation.InvocationTarget, new PropertyChangedEventArgs(propertyName));
+            _propertyChanged(invocation.InvocationTarget, new PropertyChangedEventArgs(propertyName));
         }
 
         private bool IsPropertyChangedAdd(IInvocation invocation)
@@ -138,6 +90,141 @@ namespace StructureMap.AutoNotify
             return invocation.Method.Name.Substring(SetPrefix.Length);
         }
 
-        private event PropertyChangedEventHandler PropertyChanged = (o, e) => { };
+        public event PropertyChangedEventHandler PropertyChanged
+        {
+            add
+            {
+                _propertyChanged += value;
+                logger.DebugFormat("{0} subscribed to an autonotify", value.Target.GetType().Name);
+            }
+            remove
+            {
+                _propertyChanged -= value;
+                logger.DebugFormat("{0} unsubscribed to an autonotify", value.Target.GetType().Name);
+            }
+        }
+        event PropertyChangedEventHandler _propertyChanged = (o, e) => { };
+    }
+
+    class PropertySetterToCall : IToCall
+    {
+        readonly PropertyChangedDecorator _propertyChangedDecorator;
+        readonly IInvocation _invocation;
+
+        public PropertySetterToCall(PropertyChangedDecorator propertyChangedDecorator, IInvocation invocation)
+        {
+            _propertyChangedDecorator = propertyChangedDecorator;
+            _invocation = invocation;
+        }
+
+        public void Call()
+        {
+            _invocation.Proceed();
+            _propertyChangedDecorator.Notify(_invocation);
+            _propertyChangedDecorator.SetDependents(_invocation);
+        }
+    }
+
+    class InvocationToCall : IToCall
+    {
+        readonly IInvocation _invocation;
+
+        public InvocationToCall(IInvocation invocation)
+        {
+            _invocation = invocation;
+        }
+
+        public void Call()
+        {
+            _invocation.Proceed();
+        }
+    }
+
+    class OnlyOnChangePropertySetterToCall : IToCall
+    {
+        readonly PropertyChangedDecorator _propertyChangedDecorator;
+        readonly IInvocation _invocation;
+        readonly string _propertyName;
+        readonly ILog _logger;
+
+        public OnlyOnChangePropertySetterToCall(PropertyChangedDecorator propertyChangedDecorator, IInvocation invocation, string propertyName, ILog logger)
+        {
+            _propertyChangedDecorator = propertyChangedDecorator;
+            _invocation = invocation;
+            _propertyName = propertyName;
+            _logger = logger;
+        }
+
+        public void Call()
+        {
+            object oldValue = _invocation.InvocationTarget
+                    .GetType()
+                    .GetProperty(_propertyName)
+                    .GetValue(_invocation.InvocationTarget, new object[0]);
+
+            _invocation.Proceed();
+            var newValue = _invocation.GetArgumentValue(0);
+
+            _logger.DebugFormat("Old value: {0}", oldValue);
+            _logger.DebugFormat("New value: {0}", newValue);
+
+            if(AreEqual(oldValue, newValue))
+            {
+                _logger.DebugFormat("Values are 'equal', not firing PropertyChanged");
+                return;
+            }
+
+            _logger.DebugFormat("Values are not equal.");
+            _propertyChangedDecorator.Notify(_invocation);
+            _propertyChangedDecorator.SetDependents(_invocation);
+        }
+
+        private static bool AreEqual(object oldValue, object newValue)
+        {
+            return (oldValue == null && newValue == null)
+                   || (oldValue != null && oldValue.Equals(newValue))
+                   || (newValue != null && newValue.Equals(oldValue));
+        }
+    }
+
+    class PropertyChangedRemoveToCall : IToCall
+    {
+        readonly PropertyChangedDecorator _propertyChangedDecorator;
+        readonly IInvocation _invocation;
+
+        public PropertyChangedRemoveToCall(PropertyChangedDecorator propertyChangedDecorator, IInvocation invocation)
+        {
+            _propertyChangedDecorator = propertyChangedDecorator;
+            _invocation = invocation;
+        }
+
+        public void Call()
+        {
+            var onPropertyChanged = (PropertyChangedEventHandler)_invocation.GetArgumentValue(0);
+            _propertyChangedDecorator.PropertyChanged -= onPropertyChanged;
+        }
+    }
+
+    class PropertyChangedAddToCall : IToCall
+    {
+        readonly PropertyChangedDecorator _propertyChangedDecorator;
+        readonly IInvocation _invocation;
+
+        public PropertyChangedAddToCall(PropertyChangedDecorator propertyChangedDecorator, IInvocation invocation)
+        {
+            _propertyChangedDecorator = propertyChangedDecorator;
+            _invocation = invocation;
+        }
+
+        public void Call()
+        {
+            var onPropertyChanged = (PropertyChangedEventHandler)_invocation.GetArgumentValue(0);
+            _propertyChangedDecorator.PropertyChanged += onPropertyChanged;
+        }
+    }
+
+    interface IToCall
+    {
+        void Call();
     }
 }
