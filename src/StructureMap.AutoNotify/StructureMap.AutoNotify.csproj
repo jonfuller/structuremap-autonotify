@@ -67,7 +67,7 @@
     <Compile Include="Interception\OnlyOnChangePropertySetterInterception.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Interception\PropertyChangedAddInterception.cs" />
-    <Compile Include="PropertyChangedDecorator.cs" />
+    <Compile Include="PropertyChangedInterceptor.cs" />
     <Compile Include="Interception\PropertyChangedRemoveInterception.cs" />
     <Compile Include="Interception\PropertySetterInterception.cs" />
   </ItemGroup>

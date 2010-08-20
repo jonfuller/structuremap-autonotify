@@ -6,16 +6,16 @@ namespace StructureMap.AutoNotify.Interception
 {
     public static class Interception
     {
-        public static IInterception Create(PropertyChangedDecorator propertyChangedDecorator, IInvocation invocation, FireOptions fireOption, ILog log)
+        public static IInterception Create(PropertyChangedInterceptor propertyChangedInterceptor, IInvocation invocation, FireOptions fireOption, ILog log)
         {
             if(invocation.IsPropertyChangedAdd())
-                return new PropertyChangedAddInterception(propertyChangedDecorator, invocation);
+                return new PropertyChangedAddInterception(propertyChangedInterceptor, invocation);
             if(invocation.IsPropertyChangedRemove())
-                return new PropertyChangedRemoveInterception(propertyChangedDecorator, invocation);
+                return new PropertyChangedRemoveInterception(propertyChangedInterceptor, invocation);
             if(invocation.IsPropertySetter() && FireOptions.OnlyOnChange == fireOption)
-                return new OnlyOnChangePropertySetterInterception(propertyChangedDecorator, invocation, invocation.PropertyName(), log);
+                return new OnlyOnChangePropertySetterInterception(propertyChangedInterceptor, invocation, invocation.PropertyName(), log);
             if(invocation.IsPropertySetter())
-                return new PropertySetterInterception(propertyChangedDecorator, invocation);
+                return new PropertySetterInterception(propertyChangedInterceptor, invocation);
             return new InvocationInterception(invocation);
         }
     }

@@ -5,14 +5,14 @@ namespace StructureMap.AutoNotify.Interception
 {
     class OnlyOnChangePropertySetterInterception : IInterception
     {
-        readonly PropertyChangedDecorator _propertyChangedDecorator;
+        readonly PropertyChangedInterceptor _propertyChangedInterceptor;
         readonly IInvocation _invocation;
         readonly string _propertyName;
         readonly ILog _logger;
 
-        public OnlyOnChangePropertySetterInterception(PropertyChangedDecorator propertyChangedDecorator, IInvocation invocation, string propertyName, ILog logger)
+        public OnlyOnChangePropertySetterInterception(PropertyChangedInterceptor propertyChangedInterceptor, IInvocation invocation, string propertyName, ILog logger)
         {
-            _propertyChangedDecorator = propertyChangedDecorator;
+            _propertyChangedInterceptor = propertyChangedInterceptor;
             _invocation = invocation;
             _propertyName = propertyName;
             _logger = logger;
@@ -38,8 +38,8 @@ namespace StructureMap.AutoNotify.Interception
             }
 
             _logger.DebugFormat("Values are not equal.");
-            _propertyChangedDecorator.Notify(_invocation);
-            _propertyChangedDecorator.SetDependents(_invocation);
+            _propertyChangedInterceptor.Notify(_invocation);
+            _propertyChangedInterceptor.SetDependents(_invocation);
         }
 
         private static bool AreEqual(object oldValue, object newValue)

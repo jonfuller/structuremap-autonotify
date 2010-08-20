@@ -5,19 +5,19 @@ namespace StructureMap.AutoNotify.Interception
 {
     class PropertyChangedAddInterception : IInterception
     {
-        readonly PropertyChangedDecorator _propertyChangedDecorator;
+        readonly PropertyChangedInterceptor _propertyChangedInterceptor;
         readonly IInvocation _invocation;
 
-        public PropertyChangedAddInterception(PropertyChangedDecorator propertyChangedDecorator, IInvocation invocation)
+        public PropertyChangedAddInterception(PropertyChangedInterceptor propertyChangedInterceptor, IInvocation invocation)
         {
-            _propertyChangedDecorator = propertyChangedDecorator;
+            _propertyChangedInterceptor = propertyChangedInterceptor;
             _invocation = invocation;
         }
 
         public void Call()
         {
             var onPropertyChanged = (PropertyChangedEventHandler)_invocation.GetArgumentValue(0);
-            _propertyChangedDecorator.PropertyChanged += onPropertyChanged;
+            _propertyChangedInterceptor.PropertyChanged += onPropertyChanged;
         }
     }
 }

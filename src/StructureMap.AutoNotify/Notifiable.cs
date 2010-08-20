@@ -27,7 +27,7 @@ namespace StructureMap.AutoNotify
                 typeof(T),
                 new[] { typeof(INotifyPropertyChanged) },
                 obj,
-                new PropertyChangedDecorator(fireOption, dependencyMap));
+                new PropertyChangedInterceptor(fireOption, dependencyMap));
         }
 
         public static object MakeForClass(Type type, FireOptions fireOption, object[] ctorArgs, ProxyGenerator generator, DependencyMap dependencyMap)
@@ -58,7 +58,7 @@ namespace StructureMap.AutoNotify
                 new[] { typeof(INotifyPropertyChanged) },
                 ProxyGenerationOptions.Default,
                 ctorArgs,
-                new PropertyChangedDecorator(fireOption, dependencyMap));
+                new PropertyChangedInterceptor(fireOption, dependencyMap));
         }
     }
 }

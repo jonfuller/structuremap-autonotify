@@ -6,11 +6,11 @@ using StructureMap.AutoNotify.Extensions;
 
 namespace StructureMap.AutoNotify
 {
-    public class PropertyChangedDecorator : IInterceptor
+    public class PropertyChangedInterceptor : IInterceptor
     {
         readonly FireOptions _fireOption;
         readonly DependencyMap _dependencyMap;
-        static readonly ILog logger = LogManager.GetLogger(typeof(PropertyChangedDecorator));
+        static readonly ILog logger = LogManager.GetLogger(typeof(PropertyChangedInterceptor));
 
         event PropertyChangedEventHandler _propertyChanged = (o, e) => { };
         public event PropertyChangedEventHandler PropertyChanged
@@ -27,7 +27,7 @@ namespace StructureMap.AutoNotify
             }
         }
 
-        public PropertyChangedDecorator(FireOptions fireOption, DependencyMap dependencyMap)
+        public PropertyChangedInterceptor(FireOptions fireOption, DependencyMap dependencyMap)
         {
             _fireOption = fireOption;
             _dependencyMap = dependencyMap;
@@ -61,12 +61,11 @@ namespace StructureMap.AutoNotify
                 {
                     var writingDep = propDependency as WritingPropertyDependency;
                     var setter = target.GetType().BaseType.GetProperty(propDependency.TargetPropName).GetSetMethod(true);
-                    var newValue = writingDep.Setter(target);
+                    var newValue = writingDep.NewValue(target);
 
                     setter.Invoke(target, new[] { newValue });
                 }
                 Notify(invocation);
-            });
-        }
+            });        }
     }
 }
