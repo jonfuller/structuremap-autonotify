@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using StructureMap.AutoNotify.Extensions;
 
 namespace StructureMap.AutoNotify
 {

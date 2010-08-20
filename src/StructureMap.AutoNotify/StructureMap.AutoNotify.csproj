@@ -57,7 +57,7 @@
     <Compile Include="AutoNotifyScanner.cs" />
     <Compile Include="DependencyMap.cs" />
     <Compile Include="DependsOnAttribute.cs" />
-    <Compile Include="Extensions.cs" />
+    <Compile Include="Extensions\Extensions.cs" />
     <Compile Include="LooseConstructorInstance.cs" />
     <Compile Include="Notifiable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

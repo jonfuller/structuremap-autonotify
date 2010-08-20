@@ -4,7 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace StructureMap.AutoNotify
+namespace StructureMap.AutoNotify.Extensions
 {
     public static class Extensions
     {
