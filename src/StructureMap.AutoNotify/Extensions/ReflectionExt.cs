@@ -9,8 +9,14 @@ namespace StructureMap.AutoNotify.Extensions
     {
         public static string Name<TObj, TProp>(this Expression<Func<TObj, TProp>> propExpr)
         {
-            var body = (MemberExpression)propExpr.Body;
-            return body.Member.Name;
+            return GetName("", (MemberExpression)propExpr.Body);
+        }
+
+        private static string GetName(string name, MemberExpression body)
+        {
+            if(body.Expression is MemberExpression)
+                name = GetName(name, (MemberExpression)body.Expression) + ".";
+            return name + body.Member.Name;
         }
 
         public static ConstructorInfo GetGreediestCtor(this Type target)

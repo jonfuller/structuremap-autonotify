@@ -60,6 +60,7 @@
     <Compile Include="UnitTests\CanMakeNotifiableForConcreteClass.cs" />
     <Compile Include="UnitTests\CanMakeNotifiableForInterface.cs" />
     <Compile Include="Examples\DependentProperties\DependentPropertiesUsingDependsOnAttributeWithReadOnlyGetters.cs" />
+    <Compile Include="UnitTests\DependencyMapTests.cs" />
     <Compile Include="Util\EventTracker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
