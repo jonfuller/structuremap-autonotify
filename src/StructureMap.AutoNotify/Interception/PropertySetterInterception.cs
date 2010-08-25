@@ -32,7 +32,7 @@ namespace StructureMap.AutoNotify.Interception
 
     class PropertyIsINotifyInterception : IWrappingInterception
     {
-        static readonly Dictionary<object, PropertyChangedEventHandler> handlers = new Dictionary<object, PropertyChangedEventHandler>();
+        static readonly Dictionary<object, Dictionary<string, PropertyChangedEventHandler>> handlers = new Dictionary<object, Dictionary<string, PropertyChangedEventHandler>>();
         readonly PropertyChangedInterceptor _propertyChangedInterceptor;
         readonly IInvocation _invocation;
 
@@ -49,8 +49,7 @@ namespace StructureMap.AutoNotify.Interception
             if(_invocation.GetCurrentValue() == null)
                 return;
 
-            (_invocation.GetCurrentValue() as INotifyPropertyChanged).PropertyChanged -= handlers[_invocation.InvocationTarget];
-            handlers.Remove(_invocation.InvocationTarget);
+            RemoveHandler(_invocation);
         }
 
         public void After()
@@ -60,13 +59,27 @@ namespace StructureMap.AutoNotify.Interception
             if(_invocation.GetArgumentValue(0) == null)
                 return;
 
-            handlers.Add(_invocation.InvocationTarget, (o, e) =>
+            AddHandler(_invocation, _propertyChangedInterceptor);
+        }
+
+        static void AddHandler(IInvocation invocation, PropertyChangedInterceptor propertyChangedInterceptor)
+        {
+            if (!handlers.ContainsKey(invocation.InvocationTarget))
+                handlers.Add(invocation.InvocationTarget, new Dictionary<string, PropertyChangedEventHandler>());
+
+            handlers[invocation.InvocationTarget].Add(invocation.PropertyName(), (o, e) =>
             {
-                _propertyChangedInterceptor.Notify(_invocation);
-                _propertyChangedInterceptor.SetDependents(_invocation);
+                propertyChangedInterceptor.Notify(invocation);
+                propertyChangedInterceptor.SetDependents(invocation);
             });
 
-            (_invocation.GetArgumentValue(0) as INotifyPropertyChanged).PropertyChanged += handlers[_invocation.InvocationTarget];
+            (invocation.GetArgumentValue(0) as INotifyPropertyChanged).PropertyChanged += handlers[invocation.InvocationTarget][invocation.PropertyName()];
+        }
+
+        static void RemoveHandler(IInvocation invocation)
+        {
+            (invocation.GetCurrentValue() as INotifyPropertyChanged).PropertyChanged -= handlers[invocation.InvocationTarget][invocation.PropertyName()];
+            handlers.Remove(invocation.InvocationTarget);
         }
     }
 

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 using NUnit.Framework;
 using StructureMap.AutoNotify;
 using Tests.Util;
@@ -88,7 +89,55 @@ namespace Tests.Examples.DependentProperties
         [Test]
         public void NotifyIsFiredForDependentPropertyWhenSourcePropertyIsANestedProperty()
         {
+            var container = new Container(config => config.Scan(scanConfig =>
+            {
+                scanConfig.With(new AutoNotifyAttrConvention());
+                scanConfig.TheCallingAssembly();
+                scanConfig.WithDefaultConventions();
+            }));
 
+            var me = container.GetInstance<Person>();
+            var dad = container.GetInstance<Person>();
+            var mom = container.GetInstance<Person>();
+
+            me.Father = dad;
+            me.Mother = mom;
+
+            var changedProps = new List<string>();
+            (me as INotifyPropertyChanged).PropertyChanged += (o, e) => changedProps.Add(e.PropertyName);
+
+            dad.FirstName = "dad";
+
+            Assert.That(changedProps, Contains.Item("Father"));
+            Assert.That(changedProps, Contains.Item("Parents"));
+        }
+
+        [Test]
+        public void NotifyIsFiredForDependentPropertyWhenSourcePropertyIsADoublyNestedProperty()
+        {
+            var container = new Container(config => config.Scan(scanConfig =>
+            {
+                scanConfig.With(new AutoNotifyAttrConvention());
+                scanConfig.TheCallingAssembly();
+                scanConfig.WithDefaultConventions();
+            }));
+
+            var me = container.GetInstance<Person>();
+            var dad = container.GetInstance<Person>();
+            var mom = container.GetInstance<Person>();
+            var grandDad = container.GetInstance<Person>();
+
+            me.Father = dad;
+            me.Mother = mom;
+            dad.Father = grandDad;
+
+            var changedProps = new List<string>();
+            (me as INotifyPropertyChanged).PropertyChanged += (o, e) => changedProps.Add(e.PropertyName);
+
+            grandDad.FirstName = "grand dad";
+
+            Assert.That(changedProps, Contains.Item("Father"));
+            Assert.That(changedProps, Contains.Item("Parents"));
         }
 
         [AutoNotify]
@@ -97,7 +146,6 @@ namespace Tests.Examples.DependentProperties
             public virtual string FirstName { get; set; }
             public virtual string LastName { get; set; }
             public virtual Address Address { get; set; }
-            
         }
 
         [AutoNotify]
@@ -108,6 +156,36 @@ namespace Tests.Examples.DependentProperties
             public virtual string City { get; set; }
             public virtual string State { get; set; }
             public virtual string Zip { get; set; }
+        }
+
+        [AutoNotify(DependencyMap = typeof(PersonMap))]
+        public class Person
+        {
+            public virtual string FirstName { get; set; }
+            public virtual string LastName { get; set; }
+
+            public virtual Person Father { get; set; }
+            public virtual Person Mother { get; set; }
+
+            public virtual string Parents
+            {
+                get
+                {
+                    var father = Father == null ? "" : Father.FirstName;
+                    var mother = Mother == null ? "" : Mother.FirstName;
+
+                    return father + " " + mother;
+                }
+            }
+        }
+
+        public class PersonMap : DependencyMap<Person>
+        {
+            public PersonMap()
+            {
+                Property(x => x.Parents).DependsOn(x => x.Father.FirstName);
+                Property(x => x.Parents).DependsOn(x => x.Mother.FirstName);
+            }
         }
     }
 }
