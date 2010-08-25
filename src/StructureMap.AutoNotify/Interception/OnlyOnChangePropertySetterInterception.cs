@@ -1,5 +1,6 @@
 ﻿using Castle.Core.Interceptor;
 using log4net;
+using StructureMap.AutoNotify.Extensions;
 
 namespace StructureMap.AutoNotify.Interception
 {
@@ -7,23 +8,18 @@ namespace StructureMap.AutoNotify.Interception
     {
         readonly PropertyChangedInterceptor _propertyChangedInterceptor;
         readonly IInvocation _invocation;
-        readonly string _propertyName;
         readonly ILog _logger;
 
-        public OnlyOnChangePropertySetterInterception(PropertyChangedInterceptor propertyChangedInterceptor, IInvocation invocation, string propertyName, ILog logger)
+        public OnlyOnChangePropertySetterInterception(PropertyChangedInterceptor propertyChangedInterceptor, IInvocation invocation, ILog logger)
         {
             _propertyChangedInterceptor = propertyChangedInterceptor;
             _invocation = invocation;
-            _propertyName = propertyName;
             _logger = logger;
         }
 
         public void Call()
         {
-            object oldValue = _invocation.InvocationTarget
-                .GetType()
-                .GetProperty(_propertyName)
-                .GetValue(_invocation.InvocationTarget, new object[0]);
+            object oldValue = _invocation.GetCurrentValue();
 
             _invocation.Proceed();
             var newValue = _invocation.GetArgumentValue(0);

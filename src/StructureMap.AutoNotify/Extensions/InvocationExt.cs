@@ -25,5 +25,13 @@ namespace StructureMap.AutoNotify.Extensions
         {
             return invocation.Method.Name.Substring(SetPrefix.Length);
         }
+
+        public static object GetCurrentValue(this IInvocation propertySetInvocation)
+        {
+            return propertySetInvocation.InvocationTarget
+                .GetType()
+                .GetProperty(propertySetInvocation.PropertyName())
+                .GetValue(propertySetInvocation.InvocationTarget, new object[0]);
+        }
     }
 }

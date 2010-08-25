@@ -13,10 +13,17 @@ namespace StructureMap.AutoNotify.Interception
             if(invocation.IsPropertyChangedRemove())
                 return new PropertyChangedRemoveInterception(propertyChangedInterceptor, invocation);
             if(invocation.IsPropertySetter() && FireOptions.OnlyOnChange == fireOption)
-                return new OnlyOnChangePropertySetterInterception(propertyChangedInterceptor, invocation, invocation.PropertyName(), log);
+                return new OnlyOnChangePropertySetterInterception(propertyChangedInterceptor, invocation, log).WrapWith(
+                    new PropertyIsINotifyInterception(propertyChangedInterceptor, invocation));
             if(invocation.IsPropertySetter())
-                return new PropertySetterInterception(propertyChangedInterceptor, invocation);
+                return new PropertySetterInterception(propertyChangedInterceptor, invocation).WrapWith(
+                    new PropertyIsINotifyInterception(propertyChangedInterceptor, invocation));
             return new InvocationInterception(invocation);
+        }
+
+        public static IInterception WrapWith(this IInterception target, IWrappingInterception wrapper)
+        {
+            return new WrappingInterception(wrapper, target);
         }
     }
 }
