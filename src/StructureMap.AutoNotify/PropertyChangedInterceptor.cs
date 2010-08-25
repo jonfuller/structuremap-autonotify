@@ -40,13 +40,16 @@ namespace StructureMap.AutoNotify
 
         public void Notify(IInvocation invocation)
         {
-            var propertyName = invocation.PropertyName();
+            Notify(invocation.PropertyName(), invocation.InvocationTarget);
+        }
 
+        private void Notify(string propertyName, object target)
+        {
             logger.DebugFormat("Firing PropertyChanged for {0}.{1}",
-                               invocation.InvocationTarget.GetType().Name,
+                               target.GetType().Name,
                                propertyName);
 
-            _propertyChanged(invocation.InvocationTarget, new PropertyChangedEventArgs(propertyName));
+            _propertyChanged(target, new PropertyChangedEventArgs(propertyName));
         }
 
         public void SetDependents(IInvocation invocation)
@@ -55,11 +58,11 @@ namespace StructureMap.AutoNotify
 
             _dependencyMap
                 .Map
-                .Where(x => x.SourcePropName == propertyName)
+                .Where(x => x.SourcePropName.StartsWith(propertyName))
                 .Each(propDependency =>
                 {
                     propDependency.WasChanged(invocation.InvocationTarget);
-                    Notify(invocation);
+                    Notify(propDependency.TargetPropName, invocation.InvocationTarget);
                 });
         }
     }

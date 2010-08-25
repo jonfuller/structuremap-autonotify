@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿using System.Linq;
+using System.Collections.Generic;
+using System.ComponentModel;
 using NUnit.Framework;
 using StructureMap.AutoNotify;
 using Tests.Util;
@@ -20,13 +22,16 @@ namespace Tests.Examples.DependentProperties
             }));
 
             var account = container.GetInstance<Account>();
-            var projectTracker = new EventTracker<PropertyChangedEventHandler>();
+            var propsChanged = new List<string>();
 
-            (account as INotifyPropertyChanged).PropertyChanged += projectTracker;
+            (account as INotifyPropertyChanged).PropertyChanged += (o, e) => propsChanged.Add(e.PropertyName);
             account.AccountName = "big customer";
             account.ClientId = "1234";
 
-            Assert.That(projectTracker.CallCount, Is.EqualTo(4));
+            Assert.That(propsChanged.Count, Is.EqualTo(4));
+            Assert.That(propsChanged.Count(x => x == "AccountName"), Is.EqualTo(1));
+            Assert.That(propsChanged.Count(x => x == "ClientId"), Is.EqualTo(1));
+            Assert.That(propsChanged.Count(x => x == "AccountId"), Is.EqualTo(2));
         }
 
         [AutoNotify]
