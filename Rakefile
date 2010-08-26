@@ -6,12 +6,26 @@ require 'jeweler'
 require 'fileutils'
 require 'noodle'
 
-task :default => [:msbuild]
+version_file = 'VERSION'
+task :default => [:assemblyinfo, :msbuild]
 
 desc 'Compile'
 msbuild do |msb|
   msb.properties = {'Configuration' => 'Release'}
   msb.solution = 'src/StructureMap.AutoNotify.sln'
+end
+
+file version_file do
+  File.open(version_file, 'w') {|f| f.write("0.0.0.0") }
+end
+
+assemblyinfo :assemblyinfo => version_file do |asm|
+  version = File.open(version_file).read.chomp
+  asm.version = version
+  asm.file_version = version
+  asm.title = 'structuremap-autonotify'
+  asm.description = 'A library for dynamically implementing INotifyPropertyChanged'
+  asm.output_file = 'src/CommonAssemblyInfo.cs'
 end
 
 Noodle::Rake::NoodleTask.new do |noodle|
@@ -38,7 +52,7 @@ namespace :gem do
     gemspec.description = "A project to automatically implement INotifyPropertyChanged using DynamicProxy2"
     gemspec.email = ["maburke@sep.com", "fullerjc@gmail.com"]
     gemspec.authors = ["Jon Fuller", "Matt Burke"]
-    gemspec.files = [gem_dll, 'VERSION']
+    gemspec.files = [gem_dll, version_file]
     gemspec.add_dependency 'structuremap'
     gemspec.add_dependency 'castle.dynamicproxy2'
     gemspec.add_dependency 'log4net'

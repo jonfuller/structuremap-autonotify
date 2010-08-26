@@ -53,6 +53,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\CommonAssemblyInfo.cs">
+      <Link>CommonAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="AutoNotifyAttribute.cs" />
     <Compile Include="AutoNotifyAttrConvention.cs" />
     <Compile Include="AutoNotifyPredicateConvention.cs" />
@@ -68,11 +71,13 @@
     <Compile Include="LooseConstructorInstance.cs" />
     <Compile Include="Notifiable.cs" />
     <Compile Include="Interception\OnlyOnChangePropertySetterInterception.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Interception\PropertyChangedAddInterception.cs" />
     <Compile Include="PropertyChangedInterceptor.cs" />
     <Compile Include="Interception\PropertyChangedRemoveInterception.cs" />
     <Compile Include="Interception\PropertySetterInterception.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
