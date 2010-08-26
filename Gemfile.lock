@@ -41,6 +41,7 @@ PLATFORMS
 DEPENDENCIES
   albacore
   castle.dynamicproxy2
+  gemcutter
   jeweler
   log4net
   noodle (>= 0.2.0)

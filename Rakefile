@@ -57,6 +57,7 @@ namespace :gem do
     gemspec.add_dependency 'castle.dynamicproxy2'
     gemspec.add_dependency 'log4net'
   end
+  Jeweler::GemcutterTasks.new
 end
 
 %W( gem:gemspec:generate gem:build ).each { |t| task t => :set_up_lib }

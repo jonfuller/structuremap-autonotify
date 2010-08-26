@@ -9,5 +9,6 @@ end
 group :rake do
   gem 'albacore'
   gem 'jeweler'
+  gem 'gemcutter'
   gem 'noodle', '>= 0.2.0'
 end
