@@ -7,7 +7,7 @@ using Container = StructureMap.Container;
 namespace Tests.Examples.DependentProperties
 {
     [TestFixture]
-    public class DependentPropertiesDependencyMapWithCalculatedReadOnlyGetters
+    public class DependentPropertiesDependencyMapWithCalculatedReadOnlyGettersUsingUpdates
     {
         [Test]
         public void UsingDependentPropertiesUpdatesRelatedWhenUsingDependsOnInDependencyMap()
@@ -23,7 +23,7 @@ namespace Tests.Examples.DependentProperties
             var projectTracker = new EventTracker<PropertyChangedEventHandler>();
 
             (project as INotifyPropertyChanged).PropertyChanged += projectTracker;
-            project.Files = new[]{"src1", "src2"};
+            project.Files = new[] { "src1", "src2" };
 
             Assert.That(projectTracker.CallCount, Is.EqualTo(2)); // one for Files, one for FileCount
         }
@@ -40,7 +40,7 @@ namespace Tests.Examples.DependentProperties
         {
             public ProjectDependency()
             {
-                Property(x => x.FileCount).DependsOn(x => x.Files);
+                Property(x => x.Files).Updates(x => x.FileCount);
             }
         }
     }

@@ -57,7 +57,8 @@
     <Compile Include="Examples\ContainerUsage\AutoNotifyFireOptions.cs" />
     <Compile Include="Examples\ContainerUsage\OneOffForClass.cs" />
     <Compile Include="Examples\ContainerUsage\OneOffForInterface.cs" />
-    <Compile Include="Examples\DependentProperties\DependentPropertiesDependencyMapWithCalculatedReadOnlyGetters.cs" />
+    <Compile Include="Examples\DependentProperties\DependentPropertiesDependencyMapWithCalculatedReadOnlyGettersUsingDependsOn.cs" />
+    <Compile Include="Examples\DependentProperties\DependentPropertiesDependencyMapWithCalculatedReadOnlyGettersUsingUpdates.cs" />
     <Compile Include="Examples\DependentProperties\DependentPropertiesWithSettersInDependencyMap.cs" />
     <Compile Include="Examples\DependentProperties\NestedDependentProperties.cs" />
     <Compile Include="UnitTests\AutoNotifyScannerTests.cs" />

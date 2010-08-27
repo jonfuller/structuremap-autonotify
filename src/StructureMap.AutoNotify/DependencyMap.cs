@@ -49,6 +49,7 @@ namespace StructureMap.AutoNotify
                 SourcePropertyType = typeof(TProp),
                 TargetPropertyType = typeof(TTargetProp),
             };
+            _map.Add(dependency);
 
             return new UpdatesBuilder<TObj, TProp, TTargetProp>(_givenPropName, targetPropExpr.Name(), _map, dependency);
         }
