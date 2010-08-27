@@ -17,7 +17,7 @@ namespace Tests.Examples.ContainerUsage
             {
                 config
                     .For<IFoo>()
-                    .EnrichAllWith((context, obj) => Notifiable.MakeForInterfaceGeneric(obj, FireOptions.Always, new ProxyGenerator(), new DependencyMap()))
+                    .EnrichAllWith((context, obj) => Notifiable.MakeForInterfaceGeneric(obj, FireOptions.Always, new ProxyGenerator(), DependencyMap.Empty))
                     .Use<Foo>();
             });
 

@@ -15,6 +15,8 @@ namespace StructureMap.AutoNotify
 
     public class DependencyMap
     {
+        public static DependencyMap Empty { get { return new DependencyMap(); } }
+
         public DependencyMap()
         {
             Map = new List<PropertyDependency>();
