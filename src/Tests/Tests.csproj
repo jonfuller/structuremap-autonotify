@@ -61,6 +61,8 @@
     <Compile Include="Examples\DependentProperties\DependentPropertiesDependencyMapWithCalculatedReadOnlyGettersUsingUpdates.cs" />
     <Compile Include="Examples\DependentProperties\DependentPropertiesWithSettersInDependencyMap.cs" />
     <Compile Include="Examples\DependentProperties\NestedDependentProperties.cs" />
+    <Compile Include="Examples\NotifiableUsage\NotifiableForClass.cs" />
+    <Compile Include="Examples\NotifiableUsage\NotifiableForInterface.cs" />
     <Compile Include="UnitTests\AutoNotifyScannerTests.cs" />
     <Compile Include="UnitTests\CanMakeNotifiableForConcreteClass.cs" />
     <Compile Include="UnitTests\CanMakeNotifiableForInterface.cs" />
